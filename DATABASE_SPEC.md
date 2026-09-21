@@ -239,6 +239,7 @@ evaluation rubric.
 | student_task | text | What the student must do |
 | expected_response_type | text | 'text', 'analysis', 'recommendation', etc. |
 | evaluation_rubric | jsonb | Structured rubric with criteria and weights |
+| rubric_version | integer | Version number. Starts at 1. Increment when rubric changes. |
 | recommended_time_minutes | integer | |
 | learning_objective | text | |
 | skills | text[] | Array of relevant skill names |
@@ -328,6 +329,8 @@ verification.
 | student_id | uuid (FK → profiles) | Denormalized for RLS |
 | institution_id | uuid (FK → institutions) | Denormalized for RLS |
 | ai_provider | text | Which AI provider generated this |
+| rubric_version | integer | Version of the rubric used for this evaluation |
+| rubric_snapshot | jsonb | Snapshot of the rubric at time of evaluation. Immutable. |
 | rubric_scores | jsonb | Per-criterion scores and weights |
 | total_score | numeric(5,2) | Computed total |
 | strengths | text[] | |
@@ -637,11 +640,6 @@ Future phases will add tables for:
 ---
 
 # 6. Open Questions
-
-[NEEDS DECISION]
-
-Should case study rubrics be stored as jsonb on case_studies, or as
-a separate rubric table for versioning?
 
 [ASSUMPTION]
 
