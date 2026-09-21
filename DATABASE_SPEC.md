@@ -188,7 +188,36 @@ with students via student_subjects.
 
 ---
 
-## 2.7 case_studies
+## 2.7 student_subjects
+
+**Purpose:** Join table linking students to the subjects they are
+enrolled in. Enables subject selection and determines which case
+studies a student can access.
+
+**Phase:** MVP
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| student_id | uuid (FK → profiles) | The enrolled student |
+| subject_id | uuid (FK → subjects) | The subject enrolled in |
+| institution_id | uuid (FK → institutions) | Denormalized for RLS |
+| status | text | 'active', 'dropped', 'completed' |
+| enrolled_at | timestamptz | When the student enrolled |
+| created_at | timestamptz | |
+| updated_at | timestamptz | |
+
+**Relationships:** Belongs to student and subject. Enables many-to-many.
+
+**Access:**
+
+- Student: read/write own enrollments (enroll/drop)
+- Faculty: read enrollments for students in their institution
+- Admin: CRUD all enrollments in their institution
+
+---
+
+## 2.8 case_studies
 
 **Purpose:** Real-world problems and scenarios for the Study-to-Job
 Simulator. Each case study is linked to a subject and contains the
@@ -227,7 +256,7 @@ evaluation rubric.
 
 ---
 
-## 2.8 assessments
+## 2.9 assessments
 
 **Purpose:** A student's attempt at a case study. Links a student to
 a case study and records the submission status.
@@ -256,7 +285,7 @@ student_answers and evaluations.
 
 ---
 
-## 2.9 student_answers
+## 2.10 student_answers
 
 **Purpose:** The student's actual response to a case study. Stores
 the submitted text/content.
@@ -284,7 +313,7 @@ the submitted text/content.
 
 ---
 
-## 2.10 evaluations
+## 2.11 evaluations
 
 **Purpose:** AI-generated evaluation of a student answer. Stores
 structured rubric scores and feedback. Distinguished from faculty
@@ -323,7 +352,7 @@ verification.
 
 ---
 
-## 2.11 skills
+## 2.12 skills
 
 **Purpose:** Skill definitions. Initially seeded with MVP skills only.
 Extensible for future skill taxonomy.
@@ -348,7 +377,7 @@ Extensible for future skill taxonomy.
 
 ---
 
-## 2.12 skill_evidence
+## 2.13 skill_evidence
 
 **Purpose:** Links a skill to a specific piece of student work
 (evaluation, faculty feedback, or future internship activity).
@@ -383,7 +412,7 @@ source by type + id (polymorphic).
 
 ---
 
-## 2.13 faculty_feedback
+## 2.14 faculty_feedback
 
 **Purpose:** Faculty-provided feedback on student work. Separate from
 AI evaluations to maintain the distinction between AI-generated
@@ -416,6 +445,34 @@ links to assessment.
 
 ---
 
+## 2.15 activity_logs
+
+**Purpose:** Records platform usage events for the admin MVP's basic
+usage analytics. Stores login activity, feature adoption, and
+significant user actions.
+
+**Phase:** MVP
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| institution_id | uuid (FK → institutions) | Denormalized for RLS |
+| user_id | uuid (FK → profiles) | The user who performed the action |
+| activity_type | text | 'login', 'case_started', 'case_submitted', 'evaluation_viewed', 'feedback_given', etc. |
+| metadata | jsonb | Optional context (e.g. case_study_id, subject_id) |
+| created_at | timestamptz | |
+
+**Relationships:** References user and institution. Append-only —
+rows are never updated or deleted.
+
+**Access:**
+
+- Student: append own rows only; no read
+- Faculty: append own rows; read rows for their institution
+- Admin: read all rows in their institution
+
+---
+
 # 3. Entity Relationship Summary
 
 ```text
@@ -423,16 +480,19 @@ institutions
   ├── departments
   │     └── courses
   │           └── subjects
+  │                 ├── student_subjects ←→ profiles (student)
   │                 └── case_studies
   │                       └── assessments
   │                             ├── student_answers
   │                             └── evaluations
-  └── profiles (role: student/faculty/admin)
-        ├── assessments (student)
-        ├── student_answers (student)
-        ├── evaluations (student, verified by faculty)
-        ├── skill_evidence (student, verified by faculty)
-        └── faculty_feedback (authored by faculty)
+  ├── profiles (role: student/faculty/admin)
+  │     ├── assessments (student)
+  │     ├── student_answers (student)
+  │     ├── evaluations (student, verified by faculty)
+  │     ├── skill_evidence (student, verified by faculty)
+  │     ├── faculty_feedback (authored by faculty)
+  │     └── activity_logs (all roles)
+  └── activity_logs
 
 skills
   └── skill_evidence (links skill to student work)
@@ -525,6 +585,7 @@ CREATE POLICY admin_institution ON table_name
 | departments | Read in institution | Read in institution | CRUD in institution |
 | courses | Read in institution | Read in institution | CRUD in institution |
 | subjects | Read enrolled | Read in institution | CRUD in institution |
+| student_subjects | Read/write own enrollments | Read in institution | CRUD in institution |
 | case_studies | Read active, enrolled subjects | CRUD in institution | CRUD in institution |
 | assessments | Read/write own | Read in institution | Read in institution |
 | student_answers | Read/write own | Read in institution | Read in institution |
@@ -532,6 +593,7 @@ CREATE POLICY admin_institution ON table_name
 | skills | Read | Read | CRUD |
 | skill_evidence | Read own | Read in institution; write verification fields | Read in institution |
 | faculty_feedback | Read own (addressed to student) | Read/write own authored | Read in institution |
+| activity_logs | Append own | Append own; read in institution | Read in institution |
 
 ## 4.5 Denormalization for RLS
 
@@ -552,6 +614,7 @@ through multiple tables.
 | departments | MVP |
 | courses | MVP |
 | subjects | MVP |
+| student_subjects | MVP |
 | case_studies | MVP |
 | assessments | MVP |
 | student_answers | MVP |
@@ -559,8 +622,9 @@ through multiple tables.
 | skills | MVP |
 | skill_evidence | MVP |
 | faculty_feedback | MVP |
+| activity_logs | MVP |
 
-All 13 tables are required for the MVP.
+All 15 tables are required for the MVP.
 
 Future phases will add tables for:
 
@@ -576,17 +640,8 @@ Future phases will add tables for:
 
 [NEEDS DECISION]
 
-Should `student_subjects` be a separate join table, or should subject
-enrollment be stored as an array on profiles?
-
-[NEEDS DECISION]
-
 Should case study rubrics be stored as jsonb on case_studies, or as
 a separate rubric table for versioning?
-
-[ASSUMPTION]
-
-One student can enroll in multiple subjects. [CONFIRMED from PRODUCT_SPEC]
 
 [ASSUMPTION]
 
