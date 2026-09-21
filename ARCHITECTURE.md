@@ -19,11 +19,11 @@ Student / Faculty / Admin
                        ↓
                           Server/API Layer
                                     ↓
-                                          Supabase
-                                             ┌──────┼───────┐
-                                                ↓      ↓       ↓
-                                                PostgreSQL Auth  Storage
-                                                          ↓
-                                                               AI Service
-                                                                         ↓
-                                                                            AI Provider
+                                         Neon PostgreSQL
+                                                    ↓
+                                                       AI Service
+                                                                 ↓
+                                                                    AI Provider
+```
+
+Neon PostgreSQL — selected database provider.

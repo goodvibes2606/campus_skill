@@ -21,7 +21,7 @@ recruiter matching, payments, and advanced analytics.
 - Row-Level Security (RLS) enforced on every table
 - No foreign keys that would block inserts during development — enforce
   relationships in application logic and RLS policies
-- Supabase conventions: use `auth.uid()` for current user, pgcrypto for
+- PostgreSQL conventions: use `current_user` for auth context, pgcrypto for
   UUID generation
 
 ---
@@ -57,7 +57,7 @@ institution.
 
 ## 2.2 profiles
 
-**Purpose:** Extends Supabase auth.users with role and institutional
+**Purpose:** Extends the authentication users table with role and institutional
 affiliation. One profile per user.
 
 **Phase:** MVP
@@ -515,7 +515,7 @@ their institution.
 
 ## 4.2 Helper Function
 
-A Supabase PostgreSQL function `get_user_profile()` returns the
+A PostgreSQL function `get_user_profile()` returns the
 current user's profile row (role + institution_id). RLS policies
 call this function to determine access.
 

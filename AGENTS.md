@@ -20,9 +20,9 @@ If any document conflicts, escalate. Do not silently resolve conflicts.
 
 - Frontend: Next.js + React + TypeScript
 - Backend: Next.js server-side / API routes
-- Database: PostgreSQL via Supabase (with Row-Level Security)
-- Auth: Supabase Auth
-- Storage: Supabase Storage
+- Database: Neon PostgreSQL (with Row-Level Security)
+- Auth: TBD (separate implementation)
+- Storage: TBD (separate implementation)
 - AI: Provider-independent abstraction layer (initial provider: Gemini, subject to final verification)
 - Hosting: TBD
 

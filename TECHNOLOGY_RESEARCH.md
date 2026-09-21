@@ -27,9 +27,7 @@ The proposed MVP architecture is:
 
 - Frontend: Next.js + React + TypeScript
 - Backend: Next.js server-side functionality
-- Database: PostgreSQL through Supabase
-- Authentication: Supabase Auth
-- File Storage: Supabase Storage
+- Database: Neon PostgreSQL — selected database provider
 - AI: Provider-independent AI service layer
 - Initial AI provider: Gemini API, subject to final verification
 - Hosting: A suitable Git-connected hosting platform
@@ -134,7 +132,7 @@ Risks:
                                          ↓
                                               Application API
                                                      ↙    ↓     ↘
-                                                      PostgreSQL  AI   Storage
-                                                        Supabase        Supabase
+                                                       PostgreSQL  AI   Storage
+                                                         Neon           TBD
                                                                ↓
                                                                 Skill / Evidence / Evaluation Data
