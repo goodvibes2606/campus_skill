@@ -48,58 +48,238 @@ but how effectively they can apply their knowledge.
 
 # 3. Target Users
 
+CampusSkill is one platform with three role-based experiences.
+
+Users log in as one of:
+
+1. Student
+2. Faculty
+3. Admin
+
+Each role sees a different dashboard and feature set. These are not
+separate applications — they are role-based views within the same
+platform.
+
+Recruiter is a future role and is not implemented in the initial MVP.
+
+---
+
 ## 3.1 Student
 
-Primary user of the platform.
+The student ecosystem covers the full academic-to-career journey:
 
-Students use CampusSkill to:
+**Academic Companion**
 
-- Learn
-- Practice
-- Solve real-world cases
-- Complete simulations
-- Receive AI-assisted feedback
-- Identify skill gaps
-- Build evidence
-- Develop a Skill Passport
+- Subject selection
+- Case studies and simulations
+- Answer submission
+- AI-assisted evaluation
+- Structured feedback
+- Learning recommendations
+
+**Skill Development**
+
+- Skill scoring based on evidence
+- Skill gap identification
+- Practice recommendations
+- Progress tracking
+
+**Skill Passport**
+
+- Evolving record of demonstrated skills
+- Skill name, category, level
+- Evidence and activity history
+- Assessment results
+- AI evaluation and faculty verification
+- Improvement history
+
+**Career Development** [Phase 7]
+
+- Career readiness analysis
+- Career goal tracking
+- Career path recommendations
+
+**CV/Resume Support** [Phase 7]
+
+- Resume builder
+- Resume feedback
+- Skill-to-resume mapping
+
+**LinkedIn Support** [Phase 7]
+
+- Profile optimization guidance
+- Skill endorsement preparation
+
+**Interview Preparation** [Phase 7]
+
+- Interview practice
+- Mock interviews
+- Communication feedback
+
+**Internship Support** [Phase 6]
+
+- Internship evidence builder
+- Internship activity recording
+- Internship skill tracking
+- Mentor/faculty feedback
+
+**Job-Readiness Support** [Phase 7]
+
+- Job readiness scoring
+- Employer-facing skill summaries
+- Readiness gap analysis
 
 ---
 
 ## 3.2 Faculty
 
-Faculty members use CampusSkill to:
+The faculty ecosystem supports teaching, content creation, and
+student evaluation:
 
-- View students
-- Monitor student performance
-- Review skill development
-- Provide feedback
-- Verify selected student evidence
-- Understand common skill gaps
+**Academic Content Studio** [Phase 5]
+
+- Notes generation
+- PPT generation
+- Question papers
+- MCQs
+- Assignments
+- Case studies
+- Course plans
+- Lesson plans
+- Revision material
+- Question banks
+
+**Student Performance and Skill Analytics** [Phase 1 — MVP]
+
+- Student list and activity monitoring
+- Performance overview
+- Skill development tracking
+- Students requiring attention
+
+**Faculty Feedback and Verification** [Phase 1 — MVP]
+
+- Feedback on student activity
+- Evidence verification
+- AI evaluation review
+- Competency verification
 
 ---
 
 ## 3.3 Admin
 
-Institution administrators use CampusSkill to:
+The admin ecosystem covers institution management and analytics:
 
-- Manage students
-- Manage faculty
-- Manage subjects
-- Manage institutional information
-- Monitor platform usage
-- View basic institutional analytics
+**Institution Management** [Phase 1 — MVP]
+
+- Institution dashboard
+- Student management
+- Faculty management
+
+**Department/Course/Subject Management** [Phase 1 — MVP]
+
+- Subject management
+- Course structure
+- Department organization
+
+**Usage Analytics** [Phase 1 — MVP]
+
+- Basic platform usage
+- Login activity
+- Feature adoption
+
+**Academic Analytics** [Phase 4]
+
+- Department-level performance
+- Subject-level performance
+- Cross-institution comparisons
+
+**Skill Analytics** [Phase 4]
+
+- Institution-wide skill trends
+- Skill gap analysis by department
+- Skill development progress reports
+
+**Institutional Reports** [Phase 4]
+
+- Exportable reports
+- Accreditation data
+- Performance summaries
+
+**AI/Content Management** [Phase 5]
+
+- AI usage monitoring
+- Content quality review
+- Content library management
 
 ---
 
-## 3.4 Recruiter
+## 3.4 Recruiter [Future Role — Phase 8]
 
 Recruiter functionality is a future-phase feature.
 
 Do not implement recruiter functionality in the initial MVP.
 
+Planned capabilities:
+
+- Candidate search
+- Skill-based recruitment
+- Recruiter portal
+- Candidate matching
+
 ---
 
-# 4. Initial Market
+# 4. Role Ecosystem Phases
+
+The three role ecosystems are developed in phases.
+The MVP phase delivers the minimum for each role to function.
+
+## Phase 1 — MVP
+
+Student: Authentication, profile, dashboard, subjects, case studies,
+simulation, answer submission, AI evaluation, feedback, skill scores,
+Skill Passport, activity history.
+
+Faculty: Authentication, dashboard, student list, student performance,
+skill analytics, faculty feedback, evidence verification.
+
+Admin: Authentication, institution dashboard, student management,
+faculty management, subject management, basic usage analytics.
+
+## Phase 4 — Academic Analytics
+
+Admin: Academic analytics, skill analytics, institutional reports.
+
+## Phase 5 — Content and AI Management
+
+Faculty: Academic Content Studio (notes, PPTs, question papers, MCQs,
+assignments, case studies, course plans, lesson plans, revision material,
+question banks).
+
+Admin: AI/content management.
+
+## Phase 6 — Internship Ecosystem
+
+Student: Internship evidence builder, internship activity recording,
+internship skill tracking, mentor feedback.
+
+## Phase 7 — Career Development
+
+Student: Career development, CV/resume support, LinkedIn support,
+interview preparation, job-readiness support.
+
+## Phase 8 — Recruiter Ecosystem
+
+Recruiter: Candidate search, skill-based recruitment, recruiter portal,
+candidate matching.
+
+## Phase 9 — Platform Expansion
+
+Android application, payments, advanced multilingual content,
+advanced institutional analytics.
+
+---
+
+# 5. Initial Market
 
 The first pilot should be conducted within the founder's college
 environment.
@@ -115,7 +295,7 @@ institutional complexity.
 
 ---
 
-# 5. Languages
+# 6. Languages
 
 Required product languages:
 
@@ -131,9 +311,9 @@ content while keeping the architecture ready for localization.
 
 ---
 
-# 6. Core Product Engines
+# 7. Core Product Engines
 
-## 6.1 Skill Passport
+## 7.1 Skill Passport
 
 The Skill Passport is a student's evolving record of demonstrated
 skills.
@@ -159,7 +339,7 @@ Formal verification may require faculty or institutional approval.
 
 ---
 
-## 6.2 Study-to-Job Simulator
+## 7.2 Study-to-Job Simulator
 
 The simulator connects academic concepts with practical situations.
 
@@ -183,7 +363,7 @@ The student can then improve and attempt another activity.
 
 ---
 
-## 6.3 Internship Evidence Builder
+## 7.3 Internship Evidence Builder [Phase 6]
 
 This is a future module.
 
@@ -204,7 +384,7 @@ MVP.
 
 ---
 
-# 7. MVP Scope
+# 8. MVP Scope
 
 The first MVP must remain small and functional.
 
@@ -254,7 +434,7 @@ Required:
 
 ---
 
-# 8. Student User Journey
+# 9. Student User Journey
 
 The initial student journey should be:
 
@@ -277,7 +457,7 @@ learning loop.
 
 ---
 
-# 9. Faculty User Journey
+# 10. Faculty User Journey
 
 The initial faculty journey should be:
 
@@ -292,7 +472,7 @@ The initial faculty journey should be:
 
 ---
 
-# 10. Admin User Journey
+# 11. Admin User Journey
 
 The initial admin journey should be:
 
@@ -305,7 +485,7 @@ The initial admin journey should be:
 
 ---
 
-# 11. Initial Academic Domains
+# 12. Initial Academic Domains
 
 The initial content may focus on subjects relevant to the founder's
 academic expertise.
@@ -322,7 +502,7 @@ added later.
 
 ---
 
-# 12. Case Study Structure
+# 13. Case Study Structure
 
 Each case study should eventually contain:
 
@@ -345,7 +525,7 @@ without changing application code.
 
 ---
 
-# 13. AI Evaluation
+# 14. AI Evaluation
 
 AI evaluation should use structured rubrics.
 
@@ -378,7 +558,7 @@ returning free-form text.
 
 ---
 
-# 14. Skill Model
+# 15. Skill Model
 
 Skills should eventually be organized into categories.
 
@@ -402,7 +582,7 @@ Do not create an unnecessarily large skill taxonomy before validation.
 
 ---
 
-# 15. Skill Score Philosophy
+# 16. Skill Score Philosophy
 
 Skill scores are indicators of demonstrated performance.
 
@@ -420,7 +600,7 @@ verified competency.
 
 ---
 
-# 16. Dashboard
+# 17. Dashboard
 
 ## Student Dashboard
 
@@ -464,7 +644,7 @@ The initial admin dashboard should provide:
 
 ---
 
-# 17. Navigation
+# 18. Navigation
 
 The application should use role-based navigation.
 
@@ -477,18 +657,28 @@ Possible student navigation:
 - Activity
 - Profile
 
-Future navigation may include:
+Possible faculty navigation:
 
-- Internships
-- Career
-- Portfolio
-- Opportunities
+- Dashboard
+- Students
+- Analytics
+- Feedback
+- Content Studio [Phase 5]
+
+Possible admin navigation:
+
+- Dashboard
+- Students
+- Faculty
+- Subjects
+- Analytics
+- Reports [Phase 4]
 
 Do not implement future navigation unless required by the current MVP.
 
 ---
 
-# 18. Authentication
+# 19. Authentication
 
 The application requires authentication.
 
@@ -504,7 +694,7 @@ Users must only access functionality appropriate to their role.
 
 ---
 
-# 19. Data Privacy
+# 20. Data Privacy
 
 Student information must be protected.
 
@@ -519,7 +709,7 @@ Sensitive information must not be exposed unnecessarily.
 
 ---
 
-# 20. AI Provider Architecture
+# 21. AI Provider Architecture
 
 The application must not permanently depend on one AI provider.
 
@@ -539,7 +729,7 @@ API keys must remain server-side.
 
 ---
 
-# 21. AI Roles
+# 22. AI Roles
 
 CampusSkill AI has three conceptual roles.
 
@@ -561,7 +751,7 @@ A complex multi-agent architecture is not required for the first MVP.
 
 ---
 
-# 22. Faculty Verification
+# 23. Faculty Verification
 
 Faculty verification is an important trust mechanism.
 
@@ -578,31 +768,68 @@ solely because an AI model generated a high score.
 
 ---
 
-# 23. Future Features
+# 24. Future Features
 
-The following features may be developed after MVP validation:
+Features are organized by ecosystem and development phase.
+See Section 4 for the full phase roadmap.
 
-- Internship Evidence Builder
-- Advanced portfolio
-- Career readiness analysis
-- Resume builder
-- Interview practice
-- Mock interviews
-- Job opportunities
-- Internship opportunities
+## Phase 4 — Academic Analytics
+
+- Academic analytics (Admin)
+- Skill analytics (Admin)
+- Institutional reports (Admin)
+
+## Phase 5 — Content and AI Management
+
+- Academic Content Studio (Faculty)
+  - Notes generation
+  - PPT generation
+  - Question papers
+  - MCQs
+  - Assignments
+  - Case studies
+  - Course plans
+  - Lesson plans
+  - Revision material
+  - Question banks
+- AI/content management (Admin)
+
+## Phase 6 — Internship Ecosystem
+
+- Internship evidence builder (Student)
+- Internship activity recording (Student)
+- Internship skill tracking (Student)
+- Mentor feedback (Student)
+
+## Phase 7 — Career Development
+
+- Career readiness analysis (Student)
+- CV/resume builder (Student)
+- Resume feedback (Student)
+- LinkedIn profile guidance (Student)
+- Interview practice (Student)
+- Mock interviews (Student)
+- Job-readiness support (Student)
+
+## Phase 8 — Recruiter Ecosystem
+
 - Recruiter portal
 - Candidate search
 - Skill-based recruitment
-- Institutional analytics
+- Candidate matching
+
+## Phase 9 — Platform Expansion
+
+- Android application
 - Payments
 - Advanced multilingual content
-- Android application
+- Advanced institutional analytics
 
 These are not part of the initial MVP.
 
 ---
 
-# 24. Business Model
+# 25. Business Model
 
 Long-term model:
 
@@ -634,7 +861,7 @@ The first objective is product validation rather than maximizing revenue.
 
 ---
 
-# 25. MVP Success Criteria
+# 26. MVP Success Criteria
 
 The first MVP should be considered functionally successful when a
 student can complete the following journey:
@@ -670,7 +897,7 @@ Login
 
 ---
 
-# 26. Product Principles
+# 27. Product Principles
 
 CampusSkill should follow these principles:
 
@@ -687,7 +914,7 @@ CampusSkill should follow these principles:
 
 ---
 
-# 27. Product Decisions
+# 28. Product Decisions
 
 [CONFIRMED]
 
@@ -725,7 +952,7 @@ Responsive web application.
 
 Android application:
 
-Future phase.
+Future phase (Phase 9).
 
 [ASSUMPTION]
 
@@ -751,7 +978,7 @@ Final database architecture.
 
 ---
 
-# 28. Current Development Scope
+# 29. Current Development Scope
 
 Current phase:
 
@@ -770,7 +997,7 @@ development decisions have been reviewed.
 
 ---
 
-# 29. Product Owner
+# 30. Product Owner
 
 The founder is the Product Owner and academic subject-matter expert.
 
@@ -782,7 +1009,7 @@ but must not silently change confirmed product requirements.
 
 ---
 
-# 30. Definition of a Good MVP
+# 31. Definition of a Good MVP
 
 A good CampusSkill MVP is not the application with the largest number
 of features.
