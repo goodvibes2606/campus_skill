@@ -1,6 +1,9 @@
+import Link from "next/link";
+
 import { getAuthContext } from "@/lib/authz";
 import { listVisibleResources } from "@/lib/resources";
 import { ResourceBrowser } from "@/components/resource-browser";
+import { canUseAi } from "@/lib/ai-features";
 
 /**
  * Notes / Academic resources page.
@@ -44,6 +47,14 @@ export default async function NotesPage() {
           </p>
         </div>
       </div>
+      {canUseAi(ctx.roleName) ? (
+        <div className="ai-entry">
+          <p>Summarize authorized notes or generate revision questions with AI assistance.</p>
+          <Link className="text-link" href="/ai?feature=summarize_content&contextType=resource">
+            Open AI Assist <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+      ) : null}
       <ResourceBrowser
         roleName={ctx.roleName}
         userId={ctx.userId}

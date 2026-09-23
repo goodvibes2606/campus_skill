@@ -1,9 +1,12 @@
+import Link from "next/link";
+
 import { getAuthContext } from "@/lib/authz";
 import { listVisibleAssignments } from "@/lib/assignments";
 import { listQuestionPapers, listQuestionBank } from "@/lib/question-bank";
 import { listMsts } from "@/lib/mst";
 import { attachOwnSubmissions } from "@/lib/student-academics";
 import { AssessmentBrowser } from "@/components/assessment-browser";
+import { canUseAi } from "@/lib/ai-features";
 
 /**
  * Assignments / questions / papers / MST page — server filters before render.
@@ -51,6 +54,14 @@ export default async function AssignmentsPage() {
           </p>
         </div>
       </div>
+      {canUseAi(ctx.roleName) ? (
+        <div className="ai-entry">
+          <p>Understand assignment requirements or draft practice questions with AI assistance — not answer keys.</p>
+          <Link className="text-link" href="/ai?feature=assignment_help&contextType=assignment">
+            Open AI Assist <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+      ) : null}
       <AssessmentBrowser
         roleName={ctx.roleName}
         userId={ctx.userId}

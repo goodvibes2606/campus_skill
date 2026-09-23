@@ -83,6 +83,20 @@ const navigation: NavItem[] = [
       "tpo",
     ],
   },
+  {
+    label: "AI Assist",
+    href: "/ai",
+    icon: "spark",
+    roles: [
+      "student",
+      "faculty",
+      "hod",
+      "admin",
+      "director_dean",
+      "tpo",
+      "system_admin",
+    ],
+  },
   { label: "Notifications", href: "/notifications", icon: "bell" },
   { label: "Profile", href: "/profile", icon: "user" },
 ];

@@ -7,6 +7,7 @@ import { getCompany } from "@/lib/placement-companies";
 import { AuthzError } from "@/lib/authz";
 import { OpportunityActions } from "@/components/placement/opportunity-actions";
 import { ApplyButton } from "@/components/placement/apply-button";
+import { isFeatureAllowed } from "@/lib/ai-features";
 
 export default async function OpportunityDetailPage({
   params,
@@ -187,6 +188,17 @@ export default async function OpportunityDetailPage({
       </div>
 
       <section className="content-section">
+        {isFeatureAllowed(ctx.roleName, "placement_summary") ? (
+          <div className="ai-entry">
+            <p>Summarize this opportunity within your authorized placement scope.</p>
+            <Link
+              className="text-link"
+              href={`/ai?feature=placement_summary&contextType=opportunity&contextId=${opportunity.id}`}
+            >
+              Open AI Assist <span aria-hidden="true">↗</span>
+            </Link>
+          </div>
+        ) : null}
         <Link className="text-link" href="/placement/opportunities">
           ← All opportunities
         </Link>

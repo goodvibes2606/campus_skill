@@ -308,6 +308,27 @@ function renderWorkspace(ws: SubjectWorkspace, contextLine: string) {
         </section>
       </section>
 
+      <section className="content-section" aria-label="AI assistance">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Study support</p>
+            <h2>AI assistance</h2>
+          </div>
+        </div>
+        <div className="ai-entry">
+          <p>
+            Explain this subject, generate revision questions, or draft a study
+            outline — server-side scope checks apply.
+          </p>
+          <Link
+            className="text-link"
+            href={`/ai?feature=explain_topic&contextType=subject&contextId=${ws.subject.id}`}
+          >
+            Open AI Assist for this subject <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+      </section>
+
       <section className="content-section" aria-label="Back">
         <div className="section-heading">
           <div>

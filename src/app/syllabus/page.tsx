@@ -1,6 +1,9 @@
+import Link from "next/link";
+
 import { getAuthContext } from "@/lib/authz";
 import { listVisibleSyllabi } from "@/lib/syllabus";
 import { SyllabusBrowser } from "@/components/syllabus-browser";
+import { canUseAi } from "@/lib/ai-features";
 
 /**
  * Syllabus page — server filters before render.
@@ -41,6 +44,14 @@ export default async function SyllabusPage() {
           </p>
         </div>
       </div>
+      {canUseAi(ctx.roleName) ? (
+        <div className="ai-entry">
+          <p>Generate revision questions or a study outline from an authorized syllabus.</p>
+          <Link className="text-link" href="/ai?feature=revision_questions&contextType=syllabus">
+            Open AI Assist <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+      ) : null}
       <SyllabusBrowser
         roleName={ctx.roleName}
         initialSyllabi={syllabi.map((s) => ({
