@@ -2,6 +2,19 @@
 
 ## 2026-09-23
 
+### Milestone 7 — Dashboard & System Integration
+- Added server-side role-aware dashboard loader `src/lib/dashboard.ts` composing existing visibility-filtered services (assignments, resources, syllabus, calendar, notifications, MST, question papers, daily work) plus institution/department-scoped approval queries. No synthetic statistics — cards show real rows/counts; empty arrays render empty states.
+- Student dashboard: enrollment context, enrolled subjects (`section_subjects`), today’s activity, pending/missing submissions, syllabus, resources, assignments/papers/MST, calendar, notifications, quick actions. Empty enrollment state when no active enrollment.
+- Faculty dashboard: today’s calendar/daily work/review queue, active teaching assignments, submissions awaiting review (owner + active assignment + HOD department), resources, syllabus, assessments, daily work, calendar, notifications.
+- HOD dashboard: headed departments, faculty overview, pending academic approvals (syllabus/paper/MST/calendar/daily work scoped to headship), department resources/assessments, calendar, notifications. No Director/admin promotion.
+- Director/Dean + institution admin dashboard: institution overview counts (departments/programs/faculty/students/active HODs), pending institutional approvals, HOD summaries, official institutional information, calendar, notifications.
+- System Admin dashboard: technical/institutional administration only (profile status, institution scope, separation notice, notifications) — deliberately does **not** surface academic approval queues or grant HOD/Director academic authority in the UI.
+- Rebuilt `/` home as role-aware server component with sign-in prompt, load-error recovery panel, and role-specific sections/quick actions.
+- Role-aware navigation in `AppShell` (Daily Work hidden from students; Thesis Mentor student-only; system admin limited to Dashboard/Calendar/Notifications/Profile); topbar/sidebar workspace labels by role. Server-side authz unchanged — nav filtering is UX only.
+- Layout passes `roleName` from `getAuthContext` (DB-backed, never client-supplied).
+- Added route `loading.tsx` skeleton and root `error.tsx` boundary; additive CSS for dashboard panels, empty states, and skeletons (existing visual language preserved; responsive 2-col → 1-col).
+- Verified: lint, production build, role-based dashboard/nav paths, authorization boundaries unchanged (no migration, no secret/config change, no commit).
+
 ### Milestone 6 — Academic Assessment
 - Added additive migration `006_academic_assessment`: `assignments` (full academic scope chain, lifecycle draft/published/closed/archived, due/max_points/resubmit/version), `assignment_submissions` (history-preserving attempts with unique per assignment+student+attempt; draft/submitted/returned/graded + faculty score/feedback), `question_bank_items` (draft/approved/retired approval foundation; mcq/short/long/numerical/true_false), `question_papers` (draft→in_review→approved→published→archived with approval/publish actors), `question_paper_items` (ordered questions with text snapshot from bank), and `mid_semester_tests` (MST-1/MST-2 with lifecycle + optional linked paper; one MST-N per section+subject+academic_year). Table name `assessments` intentionally not used (reserved for case-study simulator in DATABASE_SPEC §2).
 - Implemented assignment services with server-side visibility: students see published/closed work in active enrollment only and may only access their own submissions; faculty own + active teaching assignment (section+subject); HOD headed departments; admin institution. Faculty review grades or returns work; score capped by max_points; attempts never hard-deleted.

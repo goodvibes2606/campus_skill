@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
 import { getSessionUser } from "@/lib/session";
+import { getAuthContext } from "@/lib/authz";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,12 +16,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Campus Skill | Student workspace",
+  title: "Campus Skill | Academic workspace",
   description: "A focused academic workspace for learning, practice, and progress.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const user = await getSessionUser();
+  const ctx = user ? await getAuthContext() : null;
 
   return (
     <html
@@ -34,6 +36,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               ? { name: user.name || user.email, email: user.email }
               : null
           }
+          roleName={ctx?.roleName ?? null}
         >
           {children}
         </AppShell>
