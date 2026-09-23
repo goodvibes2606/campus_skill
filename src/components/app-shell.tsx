@@ -70,6 +70,19 @@ const navigation: NavItem[] = [
     icon: "spark",
     roles: ["student"],
   },
+  {
+    label: "Placement",
+    href: "/placement",
+    icon: "spark",
+    roles: [
+      "student",
+      "faculty",
+      "hod",
+      "admin",
+      "director_dean",
+      "tpo",
+    ],
+  },
   { label: "Notifications", href: "/notifications", icon: "bell" },
   { label: "Profile", href: "/profile", icon: "user" },
 ];
@@ -81,6 +94,8 @@ const WORKSPACE_LABELS: Record<string, string> = {
   director_dean: "Director / Dean",
   admin: "Institution admin",
   system_admin: "System administration",
+  tpo: "Placement cell",
+  recruiter: "Recruiter (catalog)",
 };
 
 export type ShellUser = {

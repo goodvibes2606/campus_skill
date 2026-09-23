@@ -20,6 +20,8 @@ export const ROLES = {
   hod: "hod",
   directorDean: "director_dean",
   systemAdmin: "system_admin",
+  tpo: "tpo",
+  recruiter: "recruiter",
 } as const;
 
 export type RoleName = (typeof ROLES)[keyof typeof ROLES] | (string & {});

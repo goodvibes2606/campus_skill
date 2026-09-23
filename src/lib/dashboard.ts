@@ -14,6 +14,11 @@ import { listMsts } from "@/lib/mst";
 import { listQuestionPapers } from "@/lib/question-bank";
 import { listDailyWorkReports } from "@/lib/daily-work";
 import { prioritizeAcademicNotifications } from "@/lib/student-academics";
+import { getPlacementScope } from "@/lib/placement-scope";
+import { loadPlacementCounts } from "@/lib/placement-applications";
+import { listOpportunities } from "@/lib/placement-opportunities";
+import { listApplications } from "@/lib/placement-applications";
+import { listPlacementResponsibilities } from "@/lib/placement-appointments";
 
 /**
  * Role-aware dashboard data (Milestone 7).
@@ -123,6 +128,8 @@ function roleWorkspaceLabel(roleName: string): string {
       return "Institution admin";
     case ROLES.systemAdmin:
       return "System administration";
+    case ROLES.tpo:
+      return "Placement cell";
     default:
       return "Workspace";
   }
@@ -1612,6 +1619,160 @@ async function loadSystemAdminDashboard(
 }
 
 // ---------------------------------------------------------------------------
+// TPO — operational placement owner (Milestone 9)
+// ---------------------------------------------------------------------------
+
+async function loadTpoDashboard(ctx: AuthContext): Promise<DashboardPayload> {
+  const [notifications, unread, counts, opportunities, applications, appointments] =
+    await Promise.all([
+      listNotifications(ctx, { limit: 5 }),
+      countUnreadNotifications(ctx),
+      loadPlacementCounts(ctx),
+      listOpportunities(ctx, { limit: 6 }),
+      listApplications(ctx, { limit: 6 }),
+      listPlacementResponsibilities(ctx, { limit: 5 }),
+    ]);
+
+  const sections: DashboardSection[] = [
+    section(
+      "placement-queue",
+      "Placement work queue",
+      [
+        ...opportunities
+          .filter((o) => o.status === "pending_approval" || o.status === "approved" || o.status === "draft")
+          .slice(0, 5)
+          .map((o) => ({
+            id: o.id,
+            title: o.title,
+            meta: `${o.company_name} · ${o.opportunity_kind} · ${o.application_count} application(s)`,
+            badge: o.status,
+            href: `/placement/opportunities/${o.id}`,
+          })),
+        ...applications
+          .filter((a) =>
+            ["submitted", "screening", "shortlisted", "interview", "selected"].includes(
+              a.status
+            )
+          )
+          .slice(0, 5)
+          .map((a) => ({
+            id: a.id,
+            title: `${a.student_name} · ${a.opportunity_title}`,
+            meta: `Application · ${a.company_name}`,
+            badge: a.status,
+            href: `/placement/applications/${a.id}`,
+          })),
+      ],
+      "No open placement work right now.",
+      { moreHref: "/placement", moreLabel: "Open placement hub" }
+    ),
+    section(
+      "opportunities",
+      "Opportunities",
+      opportunities.map((o) => ({
+        id: o.id,
+        title: o.title,
+        meta: `${o.company_name} · ${o.application_count} application(s)`,
+        badge: o.status,
+        href: `/placement/opportunities/${o.id}`,
+      })),
+      "No opportunities yet — create a company, then an opportunity.",
+      { moreHref: "/placement/opportunities", moreLabel: "Open opportunities" }
+    ),
+    section(
+      "applications",
+      "Applications",
+      applications.map((a) => ({
+        id: a.id,
+        title: a.opportunity_title,
+        meta: `${a.student_name} · ${a.company_name}`,
+        badge: a.status,
+        href: `/placement/applications/${a.id}`,
+      })),
+      "No applications yet.",
+      { moreHref: "/placement/applications", moreLabel: "Open applications" }
+    ),
+    section(
+      "appointments",
+      "Placement appointments",
+      appointments.map((r) => ({
+        id: r.id,
+        title: `${r.person_name} · ${r.responsibility_title}`,
+        meta: `${r.responsibility} · ${r.status}`,
+        badge: r.status,
+        href: "/placement/appointments",
+      })),
+      "No placement appointment history yet.",
+      { moreHref: "/placement/appointments", moreLabel: "Open appointments" }
+    ),
+    section(
+      "notifications",
+      "Notifications",
+      notifications.map((n) => ({
+        id: n.id,
+        title: n.title,
+        meta: `${n.is_read ? "Read" : "Unread"} · ${formatDateTime(n.created_at)}`,
+        badge: n.priority,
+        href: "/notifications",
+      })),
+      "No notifications yet.",
+      { moreHref: "/notifications", moreLabel: "Open notifications" }
+    ),
+  ];
+
+  const scope = await getPlacementScope(ctx);
+  const contextLine = scope.isTpo
+    ? "Training & Placement Officer — institution-wide placement operations"
+    : scope.isPlacementFaculty
+      ? "Placement faculty — department-scoped operations"
+      : "Placement operations";
+
+  return {
+    roleName: ctx.roleName,
+    displayName: ctx.fullName || ctx.email,
+    contextLine,
+    stats: [
+      stat("Open opportunities", counts.openOpportunities ?? 0),
+      stat("Applications", counts.applications ?? 0),
+      stat("Shortlisted", counts.shortlisted ?? 0),
+      stat("Unread notifications", unread),
+    ],
+    sections,
+    quickActions: [
+      {
+        title: "Quick access",
+        actions: [
+          {
+            title: "Placement hub",
+            detail: "Companies, opportunities, pipeline",
+            href: "/placement",
+            tone: "blue",
+          },
+          {
+            title: "Companies",
+            detail: "Directory & approval status",
+            href: "/placement/companies",
+            tone: "gold",
+          },
+          {
+            title: "Opportunities",
+            detail: "Jobs and internships",
+            href: "/placement/opportunities",
+            tone: "green",
+          },
+          {
+            title: "Appointments",
+            detail: "TPO & faculty history",
+            href: "/placement/appointments",
+            tone: "blue",
+          },
+        ],
+      },
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Entry
 // ---------------------------------------------------------------------------
 
@@ -1631,6 +1792,8 @@ export async function loadDashboard(
       return loadInstitutionLeaderDashboard(ctx, "admin");
     case ROLES.systemAdmin:
       return loadSystemAdminDashboard(ctx);
+    case ROLES.tpo:
+      return loadTpoDashboard(ctx);
     default:
       // Unknown role: minimal safe payload (identity + notifications only).
       return {

@@ -68,3 +68,24 @@ a.dash-row:hover { background: #fafcfb; }
 @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 @media (max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
 @media (max-width: 680px) { .dash-grid { margin-top: 34px; } .dash-panel { padding: 18px 16px 8px; } .dash-row strong { white-space: normal; } }
+
+/* Milestone 9 — placement foundation (additive; reuses existing visual language) */
+.placement-form { display: grid; gap: 15px; margin-bottom: 28px; padding-bottom: 22px; }
+.placement-field { display: grid; gap: 7px; }
+.placement-field span { color: var(--muted); font-size: 11px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
+.placement-field input, .placement-field textarea, .placement-field select { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font-size: 13px; outline: none; padding: 11px 13px; transition: border-color .2s, box-shadow .2s; width: 100%; }
+.placement-field input:focus, .placement-field textarea:focus, .placement-field select:focus { border-color: #6b9b90; box-shadow: 0 0 0 3px rgba(107,155,144,.15); }
+.placement-field textarea { resize: vertical; min-height: 72px; }
+.placement-field-row { display: grid; gap: 13px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.placement-check { align-items: center; color: var(--muted); display: flex; font-size: 12px; gap: 9px; }
+.placement-check input { accent-color: #123b49; height: 15px; width: 15px; }
+.placement-muted { color: var(--muted); font-size: 11px; line-height: 1.55; margin: 0; }
+.placement-success { background: #eaf5ee; border: 1px solid #d3e8db; border-radius: 8px; color: #3d7a5c; font-size: 12px; margin: 0; padding: 10px 12px; }
+.placement-body { color: var(--muted); font-size: 13px; line-height: 1.65; margin: 8px 0 4px; white-space: pre-wrap; }
+.placement-form .dash-list .dash-row:first-child { border-top-color: #edf1ef; }
+@media (max-width: 680px) {
+  .placement-field-row { grid-template-columns: 1fr; }
+  .placement-form { padding: 18px 16px 16px; }
+  .dash-row { flex-wrap: wrap; }
+  .dash-row .status-pill { order: 1; }
+}
