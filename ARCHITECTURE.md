@@ -50,3 +50,15 @@ Better Auth (auth schema)     Application (public schema)
 Full details: `AUTH_ARCHITECTURE.md`
 
 **Status: APPROVED. NOT YET IMPLEMENTED.**
+
+---
+
+## Multi-institution model
+
+[CONFIRMED] — See `PRODUCT_REQUIREMENTS.md`.
+
+- **One core product**, shared codebase, shared security model.
+- **Multiple institution tenants** with separate data, users, configuration, branding, academic structure, and module flags.
+- Institution isolation and role checks are **server-side authoritative**; never trust client-provided `institution_id`, role, or academic IDs.
+- Prefer **configuration over customization**; do not fork the codebase per institution.
+- First institution = pilot / design partner, not a permanent single-tenant fork.

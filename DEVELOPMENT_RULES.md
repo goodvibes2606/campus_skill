@@ -21,12 +21,27 @@ approval from the Product Owner.
 Before making significant changes:
 
 1. Read PROJECT_CONTEXT.md.
-2. Read relevant project specifications.
-3. Inspect the existing implementation.
-4. Understand dependencies and existing functionality.
+2. Read PRODUCT_REQUIREMENTS.md (mandatory for institution-specific, configuration, branding, module-flag, or multi-tenant changes).
+3. Read relevant project specifications.
+4. Inspect the existing implementation.
+5. Understand dependencies and existing functionality.
 
 Do not make assumptions when the required information already exists
 in project documentation.
+
+---
+
+## Rule 2b — Configuration over customization
+
+Prefer existing configuration over source-code changes when an institution
+request differs only in identity, branding, academic structure, modules,
+or normal institutional rules.
+
+Classify every institution request per `PRODUCT_REQUIREMENTS.md`
+(configuration / existing module / reusable feature / institution-specific
+extension / unsupported) and obtain Product Owner decision before building
+custom code. Institution admins must not modify schema, platform permissions,
+or core security logic.
 
 ---
 
@@ -359,6 +374,7 @@ Build slowly enough to understand what is being created.
 Before every significant implementation task:
 
 Read the project context.
+Read PRODUCT_REQUIREMENTS.md (institution / multi-tenant / configuration).
 Read the relevant specifications.
 Inspect existing code.
 Make a small change.

@@ -97,6 +97,12 @@ const navigation: NavItem[] = [
       "system_admin",
     ],
   },
+  {
+    label: "Institution",
+    href: "/institution",
+    icon: "grid",
+    roles: ["admin", "director_dean", "system_admin"],
+  },
   { label: "Notifications", href: "/notifications", icon: "bell" },
   { label: "Profile", href: "/profile", icon: "user" },
 ];
@@ -118,6 +124,15 @@ export type ShellUser = {
 } | null;
 
 export type ShellRole = string | null;
+
+export type ShellBranding = {
+  institutionName: string;
+  shortName: string | null;
+  logoUrl: string | null;
+  primaryColor: string | null;
+  secondaryColor: string | null;
+  dashboardTagline: string | null;
+} | null;
 
 function NavIcon({ name }: { name: string }) {
   return <span aria-hidden="true" className={`nav-icon nav-icon-${name}`} />;
@@ -146,10 +161,12 @@ export function AppShell({
   children,
   user,
   roleName,
+  branding,
 }: {
   children: React.ReactNode;
   user?: ShellUser;
   roleName?: ShellRole;
+  branding?: ShellBranding;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -192,10 +209,26 @@ export function AppShell({
     <div className="app-shell">
       <aside className={`sidebar ${isMenuOpen ? "sidebar-open" : ""}`}>
         <div className="brand-lockup">
-          <div className="brand-mark">CS</div>
+          <div className="brand-mark">
+            {branding?.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={branding.logoUrl} alt="" className="brand-logo" />
+            ) : (
+              (branding?.shortName || "CS").slice(0, 2).toUpperCase()
+            )}
+          </div>
           <div>
-            <p className="brand-name">Campus Skill</p>
-            <p className="brand-caption">Learn. Apply. Grow.</p>
+            {branding?.institutionName ? (
+              <>
+                <p className="brand-name">{branding.institutionName}</p>
+                <p className="brand-caption">Campus Skill platform</p>
+              </>
+            ) : (
+              <>
+                <p className="brand-name">Campus Skill</p>
+                <p className="brand-caption">Learn. Apply. Grow.</p>
+              </>
+            )}
           </div>
         </div>
         <nav className="sidebar-nav" aria-label="Main navigation">

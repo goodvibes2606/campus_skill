@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const SESSION_COOKIE = "better-auth.session_token";
 
-const PUBLIC_PREFIXES = ["/sign-in", "/sign-up"];
+const PUBLIC_PREFIXES = ["/sign-in", "/sign-up", "/public"];
 
 /**
  * Optimistic session check only (cookie presence) — no DB calls here.

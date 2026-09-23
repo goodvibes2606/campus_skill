@@ -7,10 +7,13 @@ These documents are the project's source of truth. Read them before making any s
 1. `PROJECT_CONTEXT.md` — master context, product vision, current phase, founder role
 2. `DEVELOPMENT_RULES.md` — 28 binding rules for all work
 3. `PRODUCT_SPEC.md` — full product specification, MVP scope, user journeys
-4. `TECHNOLOGY_RESEARCH.md` — technology research report with rationale
-5. `ARCHITECTURE.md` — approved architecture decision
+4. `PRODUCT_REQUIREMENTS.md` — multi-institution positioning, configuration-over-customization, requirement intake/classification/workflow, Product Owner authority
+5. `TECHNOLOGY_RESEARCH.md` — technology research report with rationale
+6. `ARCHITECTURE.md` — approved architecture decision
 
 If any document conflicts, escalate. Do not silently resolve conflicts.
+
+**Before implementing any institution-specific change, configuration feature, or multi-tenant behavior, read `PRODUCT_REQUIREMENTS.md`.**
 
 ## Current status
 
@@ -30,7 +33,7 @@ If any document conflicts, escalate. Do not silently resolve conflicts.
 
 ### 1. Source of truth
 
-Always read the five documents above before starting work. Do not assume context from file names or prior sessions.
+Always read the documents above before starting work — including `PRODUCT_REQUIREMENTS.md` for institution / multi-tenant / configuration decisions. Do not assume context from file names or prior sessions.
 
 ### 2. No silent requirement changes
 
@@ -118,6 +121,7 @@ Meaningful commits only. No vague messages like "update" or "fix stuff". Prefer:
 |---|---|
 | `PROJECT_CONTEXT.md` | Master project context — read first |
 | `PRODUCT_SPEC.md` | Full product specification |
+| `PRODUCT_REQUIREMENTS.md` | Multi-institution product requirements & requirement workflow |
 | `ARCHITECTURE.md` | Approved architecture decision |
 | `TECHNOLOGY_RESEARCH.md` | Tech research report with rationale |
 | `DEVELOPMENT_RULES.md` | 28 rules governing all work |

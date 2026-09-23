@@ -12,6 +12,10 @@ campus_skill
 
 AI-powered academic-to-career platform for college students.
 
+Multi-institution institutional education platform: one core product,
+multiple institution tenants, institution-specific configuration.
+Permanent requirements: see `PRODUCT_REQUIREMENTS.md`.
+
 ## Product Vision
 
 CampusSkill helps college students convert academic learning into
@@ -24,6 +28,10 @@ Learn → Practice → Apply → Get Evaluated → Improve → Build Evidence �
 ## Initial Market
 
 The initial pilot will be conducted within the founder's college environment.
+
+The pilot institution is a design partner — not a separate software fork.
+Architecture and configuration model: `PRODUCT_REQUIREMENTS.md`
+(multi-institution, configuration over customization).
 
 Future expansion will target PTU-affiliated colleges and eventually
 other higher-education institutions in India.
@@ -271,6 +279,14 @@ Requires founder/product-owner decision.
 
 [TECHNICAL RECOMMENDATION]
 Technical recommendation from the development agent.
+
+## Institution requirements
+
+Structured institution intake, requirement classification (configuration /
+existing module / reusable feature / institution-specific extension /
+unsupported), Product Owner decision authority, and implementation briefs
+are defined in `PRODUCT_REQUIREMENTS.md`. Read that document before
+changing institution-specific behavior.
 
 ## Current Project Phase
 
