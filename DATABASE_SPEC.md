@@ -21,8 +21,10 @@ recruiter matching, payments, and advanced analytics.
 - Row-Level Security (RLS) enforced on every table
 - No foreign keys that would block inserts during development — enforce
   relationships in application logic and RLS policies
-- PostgreSQL conventions: use `current_user` for auth context, pgcrypto for
-  UUID generation
+- Authentication identity supplied transaction-locally by the application
+  via `set_config('app.current_user_id', user.id, true)` and read
+  inside PostgreSQL using `current_setting('app.current_user_id', true)::uuid`
+- PostgreSQL `gen_random_uuid()` for UUID generation (built-in since PostgreSQL 13)
 
 ---
 
@@ -57,23 +59,25 @@ institution.
 
 ## 2.2 profiles
 
-**Purpose:** Extends the authentication users table with role and institutional
-affiliation. One profile per user.
+**Purpose:** Extends the Better Auth authentication user with role and
+institutional affiliation. One profile per user. The profile `id` references
+`auth.user.id` — both are UUID.
 
 **Phase:** MVP
 
 | Field | Type | Notes |
 |---|---|---|
-| id | uuid (PK) | References auth.users.id |
+| id | uuid (PK) | References auth.user.id |
 | institution_id | uuid (FK → institutions) | |
 | role | text | 'student', 'faculty', 'admin' |
 | full_name | text | |
-| email | text | Denormalized from auth.users for queries |
+| email | text | Denormalized from auth.user for queries |
 | avatar_url | text | Nullable |
 | created_at | timestamptz | |
 | updated_at | timestamptz | |
 
-**Relationships:** Belongs to institution. Links auth user to role.
+**Relationships:** Belongs to institution. Links Better Auth user to
+CampusSkill role.
 
 **Access:**
 
@@ -513,20 +517,43 @@ Every table has RLS enabled. The `institution_id` column is the primary
 tenant isolation boundary. Users can only access rows belonging to
 their institution.
 
-## 4.2 Helper Function
+## 4.2 Identity Mechanism
+
+The authenticated user identity is supplied transaction-locally by the
+application and stored in a PostgreSQL session variable:
+
+```sql
+-- Set by application before each database transaction
+SELECT set_config('app.current_user_id', '<user-uuid>', true);
+```
+
+RLS policies read this value inside PostgreSQL:
+
+```sql
+current_setting('app.current_user_id', true)::uuid
+```
+
+The `true` argument scopes the setting to the current transaction only,
+ensuring isolation even when using PgBouncer in transaction mode (Neon).
+
+## 4.3 Helper Function
 
 A PostgreSQL function `get_user_profile()` returns the
 current user's profile row (role + institution_id). RLS policies
 call this function to determine access.
 
 ```sql
--- Pseudocode, not implementation
-CREATE FUNCTION get_user_profile()
-RETURNS profiles
--- Returns the profile row for auth.uid()
+CREATE OR REPLACE FUNCTION public.get_user_profile()
+RETURNS public.profiles
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT * FROM public.profiles
+  WHERE id = current_setting('app.current_user_id', true)::uuid;
+$$;
 ```
 
-## 4.3 Policy Patterns
+## 4.4 Policy Patterns
 
 ### Pattern A — Student owns row
 
@@ -534,7 +561,9 @@ RETURNS profiles
 -- Student can read/write their own rows
 CREATE POLICY student_own_rows ON table_name
   FOR ALL
-  USING (student_id = auth.uid());
+  USING (
+    student_id = current_setting('app.current_user_id', true)::uuid
+  );
 ```
 
 ### Pattern B — Same institution
@@ -545,7 +574,8 @@ CREATE POLICY institution_read ON table_name
   FOR SELECT
   USING (
     institution_id = (
-      SELECT institution_id FROM profiles WHERE id = auth.uid()
+      SELECT institution_id FROM profiles
+      WHERE id = current_setting('app.current_user_id', true)::uuid
     )
   );
 ```
@@ -559,7 +589,8 @@ CREATE POLICY faculty_institution ON table_name
   USING (
     institution_id = (
       SELECT institution_id FROM profiles
-      WHERE id = auth.uid() AND role = 'faculty'
+      WHERE id = current_setting('app.current_user_id', true)::uuid
+        AND role = 'faculty'
     )
   );
 ```
@@ -573,12 +604,13 @@ CREATE POLICY admin_institution ON table_name
   USING (
     institution_id = (
       SELECT institution_id FROM profiles
-      WHERE id = auth.uid() AND role = 'admin'
+      WHERE id = current_setting('app.current_user_id', true)::uuid
+        AND role = 'admin'
     )
   );
 ```
 
-## 4.4 Table-Level RLS Summary
+## 4.5 Table-Level RLS Summary
 
 | Table | Student | Faculty | Admin |
 |---|---|---|---|
@@ -598,7 +630,7 @@ CREATE POLICY admin_institution ON table_name
 | faculty_feedback | Read own (addressed to student) | Read/write own authored | Read in institution |
 | activity_logs | Append own | Append own; read in institution | Read in institution |
 
-## 4.5 Denormalization for RLS
+## 4.6 Denormalization for RLS
 
 `institution_id` is denormalized on most tables (even when a foreign key
 path exists through parent tables) so that RLS policies can check
@@ -645,3 +677,369 @@ Future phases will add tables for:
 
 Faculty are assigned to specific subjects, not globally assigned to
 all students in an institution.
+
+---
+
+# 7. Better Auth Tables vs CampusSkill Application Tables
+
+## 7.1 Better Auth Tables (auth schema)
+
+Better Auth manages its own tables in the `auth` schema. These are
+created by Better Auth migrations and must not be modified by
+CampusSkill application migrations.
+
+| Table | Purpose |
+|---|---|
+| auth.user | User identity (id, name, email, emailVerified, image) |
+| auth.session | Active sessions |
+| auth.account | Auth providers linked to user (email/password, future OAuth) |
+| auth.verification | Email verification tokens |
+
+## 7.2 CampusSkill Application Tables (public schema)
+
+All 15 CampusSkill tables defined in Section 2 live in the `public`
+schema and are managed through version-controlled SQL migrations.
+
+## 7.3 Identity Chain
+
+```
+auth.user.id  (UUID, Better Auth managed)
+      ↓
+profiles.id   (UUID, CampusSkill application table)
+```
+
+- `auth.user.id` is the Better Auth user identifier
+- `profiles.id` references `auth.user.id` — both are UUID
+- The CampusSkill profile represents the application-level
+  student/faculty/admin identity associated with the authenticated
+  Better Auth user
+- Application code retrieves the user ID from the Better Auth session
+  and uses it to look up the corresponding profile
+
+## 7.4 Schema Separation
+
+- Better Auth tables: managed by authentication system
+- CampusSkill application schema: managed through our version-controlled
+  SQL migrations in `migrations/`
+- The two schemas are independent except that `profiles.id` references
+  `auth.user.id`
+
+## 7.5 Authentication Flow
+
+1. User authenticates via Better Auth (email/password)
+2. Better Auth creates/updates `auth.user`, `auth.session`, `auth.account`
+3. Application code sets the transaction-local identity:
+   `SELECT set_config('app.current_user_id', user.id, true)`
+4. All subsequent queries in that transaction read the identity via:
+   `current_setting('app.current_user_id', true)::uuid`
+5. RLS policies enforce access control using this identity
+
+---
+
+# 8. Milestone 3 — Academic Relationship Tables
+
+[CONFIRMED] — additive relationship layer on top of the M2 hierarchy.
+Implemented in `migrations/003_academic_relationships.sql`.
+
+## 8.1 student_enrollments
+
+**Purpose:** History-preserving student enrollment.
+Student → Institution → Program → Academic Year → Semester → Section.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| student_id | uuid (FK → profiles) | |
+| institution_id | uuid (FK → institutions) | Denormalized for RLS |
+| program_id | uuid (FK → programs) | |
+| academic_year_id | uuid (FK → academic_years) | |
+| semester_id | uuid (FK → semesters) | |
+| section_id | uuid (FK → sections) | |
+| status | text | active / completed / dropped / transferred |
+| enrolled_at | timestamptz | |
+| ended_at | timestamptz | Required when status ≠ active |
+| enrolled_by | uuid (FK → profiles) | Optional |
+
+**Constraints:** Partial unique index — at most one `active` enrollment per student.
+History rows are never deleted.
+
+**Access:**
+- Student: read own; operate only within active enrollment
+- Faculty/HOD/admin: read enrollments in their institution / section scope
+
+## 8.2 faculty_assignments
+
+**Purpose:** History-preserving faculty teaching assignment.
+Faculty → Institution → Department → Program → Academic Year → Semester → Section → Subject → Subject Code (via `subjects.subject_code`).
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| faculty_id | uuid (FK → profiles) | |
+| institution_id | uuid (FK → institutions) | |
+| department_id | uuid (FK → departments) | |
+| program_id | uuid (FK → programs) | |
+| academic_year_id | uuid (FK → academic_years) | |
+| semester_id | uuid (FK → semesters) | |
+| section_id | uuid (FK → sections) | |
+| subject_id | uuid (FK → subjects) | subject_code read from subjects |
+| status | text | active / ended / transferred |
+| assigned_at | timestamptz | |
+| ended_at | timestamptz | Required when status ≠ active |
+| assigned_by | uuid (FK → profiles) | |
+
+**Constraints:** One active assignment per (faculty, section, subject) and per (section, subject).
+`section_subjects.faculty_id` is a denormalized current pointer.
+
+**Access:**
+- Faculty: read own assignments; operate only within active assignments
+- HOD: assign/end within headed department
+- admin / system_admin: institution-scoped
+
+## 8.3 department_heads
+
+**Purpose:** HOD authorization scope with handover history.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| department_id | uuid (FK → departments) | |
+| hod_id | uuid (FK → profiles) | |
+| institution_id | uuid (FK → institutions) | |
+| assigned_by | uuid (FK → profiles) | |
+| valid_from | timestamptz | |
+| valid_to | timestamptz | NULL = ACTIVE; set = ENDED |
+
+**Constraints:** Partial unique index — at most one current HOD per department.
+
+## 8.4 Coordinator handover (reuses section_coordinators)
+
+Handover protocol:
+1. Close current row → `valid_to = now()` (ENDED)
+2. Insert new row → `valid_to IS NULL` (ACTIVE)
+3. Update `sections.coordinator_id` pointer
+
+History is never overwritten or deleted.
+
+## 8.5 Application-level authorization (until RLS)
+
+`src/lib/academic-scope.ts` enforces:
+- Students: only their own active enrollment / section
+- Faculty: only sections/subjects covered by active assignments
+- HOD: only departments they currently head, within their institution
+- Enrollment/assignment/coordinator gates: admin, system_admin, or scoped HOD/coordinator
+
+---
+
+# 9. Milestone 4 — Academic Resource Table
+
+[CONFIRMED] — academic resource metadata foundation for Notes / study materials.
+Implemented in `migrations/004_academic_resources.sql`.
+File bytes are NOT stored yet (cloud/local storage deferred by research);
+`storage_key` is nullable until a later storage milestone.
+
+## 9.1 academic_resources
+
+**Purpose:** One row per faculty/admin-owned academic resource
+(notes, PPT, PDF, document, study material) scoped to the full academic chain.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| institution_id | uuid (FK → institutions) | Denormalized for isolation |
+| university_id | uuid (FK → universities) | |
+| department_id | uuid (FK → departments) | |
+| program_id | uuid (FK → programs) | |
+| academic_year_id | uuid (FK → academic_years) | |
+| semester_id | uuid (FK → semesters) | |
+| section_id | uuid (FK → sections) | |
+| subject_id | uuid (FK → subjects) | subject_code via subjects |
+| syllabus_ref | text | Optional organization |
+| unit_ref | text | Optional |
+| topic_ref | text | Optional |
+| owner_id | uuid (FK → profiles) | Creator / content owner |
+| resource_type | text | notes / ppt / pdf / document / study_material |
+| title | text | 2–200 chars (app validation) |
+| description | text | Default '' |
+| status | text | draft / published / archived |
+| version | integer | ≥ 1; increments on content edits |
+| parent_resource_id | uuid (FK → academic_resources) | Version chains (future) |
+| original_filename | text | Upload metadata foundation |
+| mime_type | text | |
+| size_bytes | bigint | ≥ 0 |
+| storage_key | text | Nullable until storage milestone |
+| created_at | timestamptz | |
+| updated_at | timestamptz | Trigger-maintained |
+
+**Access (application-level until RLS):**
+- Student: read `published` only inside active enrollment (section + program + year + semester); never draft/archived of others
+- Faculty: read/write own; read within active teaching assignment (section+subject); coordinator reads whole coordinated section
+- HOD: all resources in departments they currently head (institution-scoped)
+- Admin: all resources in own institution
+- system_admin: any institution
+- Create: faculty (active assignment or coordinator), HOD (headed department), admin/system_admin/director_dean — never students
+- Status change: owner, HOD of department, admin
+- Content edit (title/description/refs): owner or admin; bumps `version`
+
+---
+
+# 10. Milestone 5 — Academic Operations
+
+[CONFIRMED] — additive operations layer. No existing syllabus/calendar/notification entities were duplicated (M4 only had free-text `syllabus_ref`/`unit_ref`/`topic_ref`).
+Implemented in `migrations/005_academic_operations.sql`.
+
+## 10.1 syllabi
+
+**Purpose:** Subject + academic year syllabus with lifecycle, units/topics, and source provenance (not official content).
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid (PK) | |
+| institution_id | uuid | Isolation |
+| department_id / program_id | uuid | Via subject program |
+| academic_year_id | uuid (FK) | |
+| subject_id | uuid (FK) | subject_code via `subjects.subject_code` |
+| title / description | text | |
+| version | integer | ≥ 1; snapshots in `syllabus_versions` |
+| status | text | draft / in_review / approved / published / archived |
+| source_type | text | faculty_prepared / institution_supplied / imported / unverified |
+| source_reference / source_notes | text | Provenance only |
+| source_is_official | boolean | Default false; HOD/admin only may set true |
+| created_by / submitted_* / approved_* / published_* | uuid/timestamptz | Lifecycle actors |
+
+**Constraints:** unique `(subject_id, academic_year_id, version)`; unique published per `(subject_id, academic_year_id)`.
+**Lifecycle:** `draft → in_review → approved → published → archived` (reject returns to draft; archived reopens to draft).
+**Access:** Student sees published within active enrollment (program+year); faculty own + active subject/year assignment; HOD department; admin institution.
+
+## 10.2 syllabus_versions / syllabus_units / syllabus_topics
+
+- `syllabus_versions`: immutable snapshot per `(syllabus_id, version)` with status + source + change_note.
+- `syllabus_units`: `unit_number` unique per syllabus; status active/archived.
+- `syllabus_topics`: `topic_number` unique per unit; denormalized `syllabus_id`.
+- Unit/topic edits blocked when parent syllabus is published/archived; owner/HOD/admin only.
+
+## 10.3 academic_calendar_events
+
+| Field | Type | Notes |
+|---|---|---|
+| institution_id | uuid | |
+| department_id | uuid NULL | NULL = institution-wide |
+| academic_year_id | uuid NULL | Optional |
+| title / description | text | |
+| event_type | text | event/holiday/exam/deadline/class_start/class_end/meeting/other |
+| starts_on / ends_on | date | ends ≥ starts |
+| status | text | draft / pending_approval / approved / rejected / published / archived |
+| approval/rejection actors + note | | Foundation |
+| circulated_by / circulated_at | | Set on publish (circulation foundation) |
+
+**Lifecycle:** `draft → pending_approval → approved → published → archived`; reject → draft.
+**Access:** Create faculty/HOD/admin; approve HOD(dept or institution-wide)/admin+; student reads published only.
+
+## 10.4 daily_work_reports + daily_work_items
+
+- Report: reporter + report_date unique, summary, status draft/submitted/acknowledged/returned, optional department_id.
+- Items: work_type, optional subject/section, description, duration_minutes.
+- Create: faculty/HOD/admin only. List: own always; HOD headed departments; admin institution.
+- Acknowledge/return: HOD of department or admin. Notifications on submit and status changes.
+
+## 10.5 notifications + notification_channel_deliveries
+
+**Core model (channels excluded):**
+
+| Field | Type | Notes |
+|---|---|---|
+| recipient_id | uuid | Server-side only recipient visibility |
+| event | text | `domain.action` pattern |
+| title / body | text | |
+| priority | text | low / normal / high / urgent |
+| read_at | timestamptz NULL | NULL = unread |
+| created_at | timestamptz | Timestamp |
+
+**Channels (independent):** `notification_channel_deliveries(notification_id, channel, status, external_ref, …)` — channel key free-form (1–40 chars). Application must not hard-code messaging vendors (no WhatsApp in core model/business rules). Foundation enqueues `pending` rows; transport workers deferred.
+
+**Access:** List/mark-read = recipient only (403 otherwise).
+
+## 11. Academic assessment (Milestone 6)
+
+> Table name `assessments` is **reserved** (see §2) for the case-study simulator. Assessment tables below use distinct names: `assignments`, `assignment_submissions`, `question_bank_items`, `question_papers`, `question_paper_items`, `mid_semester_tests`.
+
+## 11.1 assignments
+
+Course assignment (distinct from `faculty_assignments` teaching assignment).
+
+| Field | Type | Notes |
+|---|---|---|
+| institution…subject | uuid | Full academic scope chain (institution → … → section + subject) |
+| owner_id / created_by | uuid | Faculty/HOD/admin creator |
+| title / description / instructions | text | title 2–200 |
+| status | text | draft / published / closed / archived |
+| due_at | timestamptz NULL | |
+| max_points | integer NULL | > 0 when set |
+| allow_resubmit | boolean | default false |
+| version | integer | ≥ 1; content edits bump |
+| published_by / published_at | | Set on publish |
+
+**Lifecycle:** `draft → published → closed → archived` (allowed back-transitions per `ASSIGNMENT_TRANSITIONS`).
+**Access:** Student sees published/closed only inside active enrollment (section+program+year+semester); faculty own + active assignment (section+subject); HOD headed departments; admin institution.
+
+## 11.2 assignment_submissions
+
+History-preserving attempts — one row per attempt; never hard-deleted.
+
+| Field | Type | Notes |
+|---|---|---|
+| assignment_id / student_id | uuid | |
+| attempt_number | integer | UNIQUE(assignment_id, student_id, attempt_number) |
+| status | text | draft / submitted / returned / graded |
+| content_text / content_note | text | |
+| score / max_points_snapshot | integer NULL | graded requires score + reviewed_at |
+| feedback / reviewed_by / reviewed_at | | Faculty review foundation |
+
+**Rules:** Student only (create/read own; peers 403). Draft updates in place; returned → new attempt. Grade: integer score ≤ assignment.max_points. Return: sets returned_at, clears score.
+
+## 11.3 question_bank_items
+
+| Field | Type | Notes |
+|---|---|---|
+| institution/department/program/subject | uuid | subject-scoped bank |
+| question_type | text | mcq / short / long / numerical / true_false |
+| question_text / options / answer_key / explanation | text/jsonb | options JSON array |
+| marks / difficulty / unit_ref | | difficulty easy/medium/hard |
+| status | text | draft / approved / retired |
+| approved_by / approved_at | | approval foundation |
+
+**Lifecycle:** `draft → approved → retired` (approved→draft, retired→draft allowed).
+**Access:** Students cannot browse the bank (answer keys hidden — list FALSE, single 403). Faculty own + active subject assignment; HOD dept; admin institution.
+
+## 11.4 question_papers + question_paper_items
+
+| Field | Type | Notes |
+|---|---|---|
+| full scope chain | uuid | section_id nullable (subject-level paper) |
+| paper_kind | text | assignment / quiz / mst / final / practice |
+| total_marks / duration_minutes | | total_marks recomputed from items |
+| status | text | draft / in_review / approved / published / archived |
+| submitted_* / approved_* / published_* / approval_note | | review/approval foundation |
+| version | integer | bumps on content change |
+
+**Items:** `question_paper_items(paper_id, order_number unique, question_bank_item_id NULL, question_text_snapshot, marks)` — snapshot freezes text at add time.
+
+**Lifecycle:** `draft → in_review → approved → published → archived`.
+**Access:** Approval requires HOD/admin; publish requires approved first; student reads published papers in enrolled section (or subject-level) + section_subjects link.
+
+## 11.5 mid_semester_tests
+
+MST-1 and MST-2 records.
+
+| Field | Type | Notes |
+|---|---|---|
+| full scope chain | uuid | section required |
+| mst_number | integer | CHECK IN (1, 2) |
+| title / description / scheduled_on | | scheduled_on date |
+| max_marks | integer | default 40, > 0 |
+| question_paper_id | uuid NULL | optional linked paper |
+| status + approval/publish actors | | same lifecycle as papers |
+
+**Constraints:** UNIQUE(section_id, subject_id, academic_year_id, mst_number).
+**Lifecycle:** `draft → in_review → approved → published → archived`.
+**Access:** Same as assignments for faculty/HOD/admin; student sees published only in enrolled section with subject linked.
