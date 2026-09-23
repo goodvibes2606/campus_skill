@@ -22,6 +22,12 @@ type NavItem = {
 const navigation: NavItem[] = [
   { label: "Dashboard", href: "/", icon: "grid" },
   {
+    label: "My Subjects",
+    href: "/subjects",
+    icon: "book",
+    roles: ["student"],
+  },
+  {
     label: "Notes",
     href: "/notes",
     icon: "book",

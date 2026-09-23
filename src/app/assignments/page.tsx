@@ -2,6 +2,7 @@ import { getAuthContext } from "@/lib/authz";
 import { listVisibleAssignments } from "@/lib/assignments";
 import { listQuestionPapers, listQuestionBank } from "@/lib/question-bank";
 import { listMsts } from "@/lib/mst";
+import { attachOwnSubmissions } from "@/lib/student-academics";
 import { AssessmentBrowser } from "@/components/assessment-browser";
 
 /**
@@ -30,12 +31,13 @@ export default async function AssignmentsPage() {
     );
   }
 
-  const [assignments, papers, questions, msts] = await Promise.all([
+  const [visibleAssignments, papers, questions, msts] = await Promise.all([
     listVisibleAssignments(ctx, { limit: 50 }),
     listQuestionPapers(ctx, { limit: 50 }),
     listQuestionBank(ctx, { limit: 50 }),
     listMsts(ctx, { limit: 50 }),
   ]);
+  const assignments = await attachOwnSubmissions(ctx, visibleAssignments);
 
   return (
     <div className="placeholder-page">
@@ -73,6 +75,23 @@ export default async function AssignmentsPage() {
           ownerName: a.owner_name,
           isOwner: a.owner_id === ctx.userId || a.created_by === ctx.userId,
           submissionCount: a.submission_count,
+          mySubmission: a.my_submission
+            ? {
+                id: a.my_submission.id,
+                assignment_id: a.my_submission.assignment_id,
+                attempt_number: a.my_submission.attempt_number,
+                status: a.my_submission.status,
+                score: a.my_submission.score,
+                max_points_snapshot: a.my_submission.max_points_snapshot,
+                feedback: a.my_submission.feedback,
+                submitted_at:
+                  a.my_submission.submitted_at instanceof Date
+                    ? a.my_submission.submitted_at.toISOString()
+                    : a.my_submission.submitted_at
+                      ? String(a.my_submission.submitted_at)
+                      : null,
+              }
+            : null,
         }))}
         initialPapers={papers.map((p) => ({
           id: p.id,

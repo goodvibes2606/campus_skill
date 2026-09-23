@@ -2,6 +2,17 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+type OwnSubmission = {
+  id: string;
+  assignment_id: string;
+  attempt_number: number;
+  status: string;
+  score: number | null;
+  max_points_snapshot: number | null;
+  feedback: string;
+  submitted_at: string | null;
+};
+
 type AssignmentRow = {
   id: string;
   title: string;
@@ -18,6 +29,7 @@ type AssignmentRow = {
   ownerName: string;
   isOwner: boolean;
   submissionCount: number;
+  mySubmission?: OwnSubmission | null;
 };
 
 type PaperRow = {
@@ -1032,8 +1044,24 @@ export function AssessmentBrowser({
                       {a.ownerName}
                       {a.dueAt ? ` · due ${a.dueAt.slice(0, 16).replace("T", " ")}` : ""}
                       {a.maxPoints !== null ? ` · ${a.maxPoints} pts` : ""}
-                      {` · ${a.submissionCount} submission(s)`}
+                      {!isStudent && ` · ${a.submissionCount} submission(s)`}
+                      {isStudent
+                        ? a.mySubmission
+                          ? ` · my work: ${a.mySubmission.status}${
+                              a.mySubmission.score !== null
+                                ? ` · ${a.mySubmission.score}${
+                                    a.mySubmission.max_points_snapshot !== null
+                                      ? `/${a.mySubmission.max_points_snapshot}`
+                                      : ""
+                                  }`
+                                : ""
+                            }`
+                          : " · no submission yet"
+                        : ""}
                     </small>
+                    {isStudent && a.mySubmission?.feedback ? (
+                      <small>Feedback: {a.mySubmission.feedback}</small>
+                    ) : null}
                     {a.description && <small>{a.description}</small>}
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                       <button

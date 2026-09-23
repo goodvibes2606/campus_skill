@@ -2,6 +2,15 @@
 
 ## 2026-09-23
 
+### Milestone 8 — Student Academic System
+- Added `src/lib/student-academics.ts`: server-side enrolled subjects from active enrollment → `section_subjects`; subject workspace loader that rejects subject IDs outside the enrolled section; own-submission summaries (latest attempt per assignment); academic-first notification ordering. No client-supplied IDs trusted for scope.
+- Added `/subjects` (My Subjects hub): enrollment context, real counts (enrolled subjects, pending submissions), subject cards linking to workspaces, empty states for no enrollment / no subject links, quick links to assignments/notes/syllabus.
+- Added `/subjects/[subjectId]` subject workspace: assignments with own submission status/feedback, published resources, published syllabus structure (units/topics — no fabricated progress percentages), MST & published papers, loading skeleton, signed-out and authorization-denied states.
+- Enhanced student dashboard: enrolled subjects link to `/subjects/[id]`, “Open my subjects” + “My subjects” quick action, academic-priority notification ordering (recipient-only).
+- Added student-only “My Subjects” nav item (UX filter only; routes remain server-authorized).
+- Integrated existing submission flow into `/assignments`: one server-side own-submission query surfaces “my work” status/score/feedback beside each assignment (student display only; faculty review UI unchanged).
+- Verified: `npm run lint`, `npx tsc --noEmit`, `npm run build` clean; rollback-only DB check confirmed enrolled-subjects query (`ROLLBACK_OK`); working tree uncommitted. Limitation: live DB has 0 enrollments/0 subjects — full signed-in student UI flow not exercised against real seed data.
+
 ### Milestone 7 — Dashboard & System Integration
 - Added server-side role-aware dashboard loader `src/lib/dashboard.ts` composing existing visibility-filtered services (assignments, resources, syllabus, calendar, notifications, MST, question papers, daily work) plus institution/department-scoped approval queries. No synthetic statistics — cards show real rows/counts; empty arrays render empty states.
 - Student dashboard: enrollment context, enrolled subjects (`section_subjects`), today’s activity, pending/missing submissions, syllabus, resources, assignments/papers/MST, calendar, notifications, quick actions. Empty enrollment state when no active enrollment.

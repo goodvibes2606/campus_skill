@@ -13,6 +13,7 @@ import { listNotifications, countUnreadNotifications } from "@/lib/notifications
 import { listMsts } from "@/lib/mst";
 import { listQuestionPapers } from "@/lib/question-bank";
 import { listDailyWorkReports } from "@/lib/daily-work";
+import { prioritizeAcademicNotifications } from "@/lib/student-academics";
 
 /**
  * Role-aware dashboard data (Milestone 7).
@@ -355,9 +356,10 @@ async function loadStudentDashboard(
           id: s.id,
           title: `${s.subject_code} · ${s.name}`,
           meta: s.faculty_name ? `Faculty: ${s.faculty_name}` : "No faculty assigned",
+          href: `/subjects/${s.id}`,
         })),
         "No subjects linked to your section yet.",
-        {}
+        { moreHref: "/subjects", moreLabel: "Open my subjects" }
       )
     );
 
@@ -469,13 +471,15 @@ async function loadStudentDashboard(
     section(
       "notifications",
       "Notifications",
-      notifications.map((n) => ({
-        id: n.id,
-        title: n.title,
-        meta: `${n.is_read ? "Read" : "Unread"} · ${formatDateTime(n.created_at)}`,
-        badge: n.priority,
-        href: "/notifications",
-      })),
+      prioritizeAcademicNotifications(notifications)
+        .slice(0, 5)
+        .map((n) => ({
+          id: n.id,
+          title: n.title,
+          meta: `${n.is_read ? "Read" : "Unread"} · ${formatDateTime(n.created_at)}`,
+          badge: n.priority,
+          href: "/notifications",
+        })),
       "No notifications yet.",
       { moreHref: "/notifications", moreLabel: "Open notifications" }
     )
@@ -500,6 +504,12 @@ async function loadStudentDashboard(
       {
         title: "Quick access",
         actions: [
+          {
+            title: "My subjects",
+            detail: "Subject workspaces for your section",
+            href: "/subjects",
+            tone: "green",
+          },
           {
             title: "Assignments",
             detail: "Work, papers, and MSTs",
