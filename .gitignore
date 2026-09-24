@@ -141,3 +141,22 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Next.js
+.next/
+out/
+build/
+
+# Misc
+.DS_Store
+*.pem
+
+# Vercel
+.vercel
+
+# TypeScript
+next-env.d.ts
+.env.local
+
+# Local file blob store (server-only; never commit user uploads)
+.file-store/
