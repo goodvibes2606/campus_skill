@@ -6,7 +6,25 @@
 
 ## Product
 
-CampusSkill
+**Campus Skill** — product of **NxGen Digital Services**.
+
+```text
+NxGen Digital Services (parent company)
+  → Campus Skill Core Platform (one reusable codebase)
+    → Institution / Tenant Configuration
+```
+
+Platform-level: core architecture, auth, RBAC, authorization/security,
+reusable academic modules, platform configuration, shared services,
+audit/security infrastructure, product documentation.
+
+Institution-level: identity, branding, contact, academic structure,
+enabled modules, announcements, public profile, academic configuration —
+via **configuration/data only** (no per-institution forks).
+
+Branding: **Campus Skill** · **Powered by NxGen Digital Services**.
+Pilot/reference tenant (A&M Institute of Management and Technology,
+Pathankot) is design-partner data only — not hard-coded product identity.
 
 ## Architecture Decision
 
@@ -57,8 +75,8 @@ Full details: `AUTH_ARCHITECTURE.md`
 
 [CONFIRMED] — See `PRODUCT_REQUIREMENTS.md`.
 
-- **One core product**, shared codebase, shared security model.
+- **One core product** (Campus Skill, NxGen Digital Services), shared codebase, shared security model.
 - **Multiple institution tenants** with separate data, users, configuration, branding, academic structure, and module flags.
 - Institution isolation and role checks are **server-side authoritative**; never trust client-provided `institution_id`, role, or academic IDs.
 - Prefer **configuration over customization**; do not fork the codebase per institution.
-- First institution = pilot / design partner, not a permanent single-tenant fork.
+- First institution (A&M Institute of Management and Technology, Pathankot) = pilot / design partner, not a permanent single-tenant fork and not permanent product identity.

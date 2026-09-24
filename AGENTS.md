@@ -17,15 +17,20 @@ If any document conflicts, escalate. Do not silently resolve conflicts.
 
 ## Current status
 
-**PHASE 0 — Development Environment** remains the approved baseline for launching new work. Documentation is approved. Application milestones M1–M12 have been implemented (see `CHANGELOG.md`); M12 is uncommitted pending Product Owner review. Do not start M13 or other new phases without Product Owner approval.
+**PHASE 0 — Development Environment** remains the approved baseline for launching new work. Documentation is approved. Application milestones M1–M12 are **checkpointed** (latest `0143317` — Checkpoint: complete milestone 12; see `CHANGELOG.md`).
+
+**M13 — Product Architecture Documentation Formalization** is in progress and is **documentation-only** (formalize NxGen Digital Services → Campus Skill Core Platform → Institution/Tenant Configuration). Do not start feature milestones (M14+, Attendance/Timetable/Examination, billing, etc.) without Product Owner approval.
+
+**Product ownership:** Campus Skill is a product of **NxGen Digital Services**. Branding direction: Campus Skill · Powered by NxGen Digital Services. Pilot/reference institution (A&M Institute of Management and Technology, Pathankot) is tenant data only — not hard-coded product identity. See `PRODUCT_REQUIREMENTS.md` §0.
 
 ## Approved architecture
 
+- Parent company / product: NxGen Digital Services → Campus Skill Core Platform → Institution/Tenant Configuration
 - Frontend: Next.js + React + TypeScript
 - Backend: Next.js server-side / API routes
 - Database: Neon PostgreSQL (with Row-Level Security)
-- Auth: TBD (separate implementation)
-- Storage: TBD (separate implementation)
+- Auth: Better Auth (implemented; not to be replaced without approval)
+- Storage: local filesystem foundation (`.file-store/`); cloud provider TBD
 - AI: Provider-independent abstraction layer (initial provider: Gemini, subject to final verification)
 - Hosting: TBD
 

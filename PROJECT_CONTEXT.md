@@ -2,7 +2,26 @@
 
 ## Project Name
 
-CampusSkill
+CampusSkill (display: Campus Skill)
+
+## Product ownership `[CONFIRMED]`
+
+Campus Skill is a **product of NxGen Digital Services**.
+
+```text
+NxGen Digital Services (parent company)
+  → Campus Skill Core Platform (one reusable codebase)
+    → Institution / Tenant Configuration (per-institution data + settings)
+```
+
+Branding direction (product-level):
+
+- **Campus Skill**
+- **Powered by NxGen Digital Services**
+
+Institution portals additionally display their configured institution identity
+(name, logo, colors). Do **not** hard-code any single institution as the
+permanent product identity.
 
 ## GitHub Repository
 
@@ -15,6 +34,16 @@ AI-powered academic-to-career platform for college students.
 Multi-institution institutional education platform: one core product,
 multiple institution tenants, institution-specific configuration.
 Permanent requirements: see `PRODUCT_REQUIREMENTS.md`.
+
+## Platform vs institution responsibilities `[CONFIRMED]`
+
+| Layer | Owns |
+|---|---|
+| **NxGen / Campus Skill platform** | Core app architecture, authentication, RBAC, authorization/security, reusable academic modules, platform configuration, shared services, audit/security infrastructure, product documentation |
+| **Institution tenant** | Name, logo, address/contact, university affiliation, departments/programs/years/semesters/sections/subjects, faculty/students, branding, enabled modules, announcements, public profile, academic configuration |
+
+Ordinary institution differences are handled through **configuration/data**,
+not source-code forks. Decision model: `PRODUCT_REQUIREMENTS.md` §3–§8.
 
 ## Product Vision
 
@@ -29,9 +58,12 @@ Learn → Practice → Apply → Get Evaluated → Improve → Build Evidence �
 
 The initial pilot will be conducted within the founder's college environment.
 
-The pilot institution is a design partner — not a separate software fork.
-Architecture and configuration model: `PRODUCT_REQUIREMENTS.md`
-(multi-institution, configuration over customization).
+**Pilot / reference institution:** A&M Institute of Management and Technology,
+Pathankot (and any related pilot tenant data). This institution is a
+**design partner and pilot/reference tenant only** — not a separate software
+fork and **not** the hard-coded permanent product identity. Architecture and
+configuration model: `PRODUCT_REQUIREMENTS.md` (multi-institution,
+configuration over customization).
 
 Future expansion will target PTU-affiliated colleges and eventually
 other higher-education institutions in India.
@@ -288,19 +320,38 @@ unsupported), Product Owner decision authority, and implementation briefs
 are defined in `PRODUCT_REQUIREMENTS.md`. Read that document before
 changing institution-specific behavior.
 
+Workflow (summary): Requirement → Intake → Validation → Configuration Check →
+Existing Module Check → Reusable Feature Check → Extension Check →
+Product Owner Decision → Implementation Brief → Development → Testing →
+Institution Review → Publish.
+
+Institution administrators may **submit** requirements. They must not alter
+source code, database schema, platform permissions, or security architecture.
+The Product Owner controls roadmap, reusable feature decisions,
+institution-specific extensions, and implementation approval.
+
 ## Current Project Phase
 
 PHASE 0 — Development Environment (documentation-approved baseline).
 
-Application milestones M1–M12 have been implemented and verified in the working tree (see `CHANGELOG.md`). The Product Owner has not yet approved moving past PHASE 0 for production launch / M13+.
+Application milestones M1–M12 have been implemented and checkpointed (see
+`CHANGELOG.md`). M13 is **documentation-only** product-architecture
+formalization (this document set). Further feature milestones require Product
+Owner approval.
 
 ## Current Task
 
-M12 (Production Readiness + Institutional Usability) implementation and verification is complete pending Product Owner review of the uncommitted working tree.
+M13 — Product Architecture Documentation Formalization: formalize
+NxGen Digital Services → Campus Skill Core Platform → Institution/Tenant
+Configuration in source-of-truth docs. No feature, schema, auth, or
+M1–M12 behavior changes.
 
 ## Important Rule
 
-Do not start building new application features until the product, architecture and development rules have been reviewed. Do not start M13 without explicit Product Owner approval. Read `PRODUCT_REQUIREMENTS.md` before institution-specific or multi-tenant changes.
+Do not start building new application features until the product, architecture
+and development rules have been reviewed. Do not start a new feature milestone
+without explicit Product Owner approval. Read `PRODUCT_REQUIREMENTS.md` before
+institution-specific or multi-tenant changes.
 
 ## Current Status
 
@@ -308,4 +359,5 @@ GitHub repository created.
 
 GitHub Codespace created.
 
-M1–M11 checkpointed (`87cf192` / prior `15eeea8`). M12 implemented in working tree (uncommitted for review): security hardening, account lifecycle, file registry, import/export, privacy/consent, announcements, Help, two-institution seed, Thesis Mentor UI removal, loading/responsive UX, backup/monitoring requirements doc. Lint / typecheck / build re-run after M12.
+M1–M12 checkpointed (latest: `0143317` Checkpoint: complete milestone 12).
+M13 documentation work in working tree (uncommitted for Product Owner review).

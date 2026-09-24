@@ -2,7 +2,7 @@
 
 ## Status
 
-`[CONFIRMED]` — Permanent product requirements and institution-requirement model (M11 consolidation).
+`[CONFIRMED]` — Permanent product requirements and institution-requirement model (M11 consolidation; M13 product-architecture formalization).
 
 ## Purpose
 
@@ -17,6 +17,50 @@ Related documents (do not duplicate — escalate conflicts):
 | `DEVELOPMENT_RULES.md` | Binding development rules |
 | `ARCHITECTURE.md` | Approved technical architecture |
 | `AGENTS.md` | Agent operating instructions |
+
+---
+
+## 0. Product ownership and architecture hierarchy `[CONFIRMED]`
+
+Campus Skill is a **product of NxGen Digital Services**.
+
+```text
+NxGen Digital Services (parent company)
+  → Campus Skill Core Platform (one reusable codebase)
+    → Institution / Tenant Configuration (per-institution data + settings)
+```
+
+### Platform-level concerns (Campus Skill core)
+
+- Core application architecture  
+- Authentication  
+- RBAC  
+- Authorization / security  
+- Reusable academic modules  
+- Platform configuration  
+- Shared services  
+- Audit / security infrastructure  
+- Product documentation  
+
+### Institution-level configuration (per tenant)
+
+- Institution name, logo, address / contact details  
+- University affiliation  
+- Departments, programs/streams, academic years, semesters, sections/classes, subjects/course codes  
+- Faculty, students  
+- Institution branding  
+- Enabled modules  
+- Announcements  
+- Public institution profile  
+- Academic configuration  
+
+Ordinary institution differences must be handled through **configuration/data, not source-code changes**. Decision model: **1) Existing configuration → 2) Existing module capability → 3) Reusable product feature → 4) Institution-specific controlled extension → 5) Unsupported/unsafe** (detail in §5–§7).
+
+**Branding direction:** Campus Skill · Powered by NxGen Digital Services. Institution portals additionally display their configured institution identity. Do **not** introduce a configurable parent-attribution field and do **not** hard-code a single pilot institution as permanent product identity.
+
+**Pilot / reference institution:** A&M Institute of Management and Technology, Pathankot — pilot/reference tenant and design partner only (may remain as pilot data); not hard-coded product identity.
+
+**Out of scope for this architecture layer:** billing/subscriptions, payment systems, NxGen company website, replacing authentication, replacing M1–M12 architecture, unnecessary configurability.
 
 ---
 
@@ -412,34 +456,58 @@ This document records the **permanent product strategy** those tables and pages 
 
 ---
 
-## 14. Milestone 12 — Current backlog `[CONFIRMED]`
+## 14. Milestones M1–M12 — current capabilities `[CONFIRMED]`
 
-Implemented in M12 (production readiness + institutional usability). Do not rebuild; extend only with Product Owner approval.
+Implemented and checkpointed through M12 (`0143317` — Checkpoint: complete milestone 12). Do not rebuild; extend only with Product Owner approval.
+
+### Platform-level (shared core)
+
+- Application foundation: Next.js + React + TypeScript; Neon PostgreSQL; Better Auth  
+- RBAC / roles / server-side authorization; institution-scoped workspace isolation  
+- Academic modules (structure, resources, syllabus, assignments, assessments, question bank, calendar, daily work, placement foundation, AI assistance surface, notifications)  
+- Institution Control Center + config audit + sensitive-area change workflow  
+- Account lifecycle, password reset / email verification foundation  
+- Import/export engines, file object registry + local_fs blob store  
+- Privacy/consent, announcements, Help KB  
+- Two-institution E2E seed + live isolation verification  
+- Docs: product requirements, architecture, operations backup/monitoring  
+
+### Institution-level (configuration, not forks)
+
+- Identity/contact/branding/public profile in `institution_configs`  
+- Enabled modules (`institution_modules`)  
+- Academic structure + people per tenant  
+- Privacy notices, announcements, onboarding checklist  
+- Public directory `/public`, `/public/institution/[slug]`  
+
+### M12 backlog items (as completed)
 
 - Account lifecycle: `pending` / `active` / `suspended` / `inactive` / `graduated` / `left` (+ `deactivated` technical) — workspace access fail-closed on non-active.
 - Password reset + email verification foundation (Better Auth; optional server webhook delivery — no client-exposed links).
-- File object registry (`file_objects`) — blob storage provider still TBD (separate implementation phase).
-- CSV/Excel import pipeline foundation (parse → validate → preview → approve → run; structure-safe entities; audit).
+- File object registry (`file_objects`) + local filesystem blob store (`.file-store/`, provider `local_fs`).
+- CSV/Excel (native XLSX) import pipeline (parse → validate → preview → approve → run; structure-safe entities; audit).
 - Controlled export jobs (role-gated; TPO blocked from enrollment/assignment exports).
 - Privacy / consent: notice wording configurable per institution; consent acceptance recorded with hashed IP.
 - Announcements: audience-scoped, publish workflow, notification fan-out.
-- Campus Skill Help: static role+module knowledge base (`/help` + `/api/help`) — no AI key required; structured for future AI retrieval without inventing capabilities.
+- Campus Skill Help: static role+module knowledge base (`/help` + `/api/help`) — no AI key required.
 - Two-institution E2E seed (`scripts/seed-e2e.mjs`) for isolation testing.
 - Thesis Mentor UI/nav removed (deferred product surface).
 - Responsive UX polish + loading states for high-traffic pages.
-- Backup & monitoring requirements documented in `OPERATIONS_BACKUP_MONITORING.md` (requirements only — no real credentials, no paid dependency).
+- Backup & monitoring requirements documented in `OPERATIONS_BACKUP_MONITORING.md`.
 
-## 15. Future backlog — not in M12 `[CONFIRMED]`
+## 15. Future backlog — not in M1–M12 `[CONFIRMED]`
 
 Deferred until explicitly approved (development sequence / `PRODUCT_SPEC.md` / `AGENTS.md` rules):
 
-- Attendance, Timetable, Examination — **future modules only** (not full modules in M12).
-- Production blob storage provider + CDN (Storage: TBD).
-- Real SMTP / transactional email provider (M12 uses optional webhook + console fallback).
+- Attendance, Timetable, Examination — **future modules only** (separate Product Owner approval required; not started by M13).
+- Production blob storage provider + CDN (beyond local_fs foundation).
+- Real SMTP / transactional email provider (optional webhook + console fallback today).
 - Row-Level Security hardening beyond application-level isolation (architecture already anticipates RLS).
-- Full Excel engine, large-scale spreadsheet, SSO/SAML, multi-campus, billing, advanced analytics.
+- Full Excel engine scale, large-scale spreadsheet, SSO/SAML, multi-campus, billing, advanced analytics.
 - Recruiter marketplace, payments, Android application, advanced portfolio, job matching, internship management, complex multi-agent AI, large-scale multilingual content.
-- M13+ development sequence steps — do not start without Product Owner approval.
+- Configurable parent-company attribution **field** — intentionally **not** introduced (branding direction is fixed product copy: “Powered by NxGen Digital Services”).
+- Wiring `assertModuleEnabled` into every feature route — only if a later security/configuration defect requires it; not part of documentation-only M13.
+- M14+ feature milestones — do not start without Product Owner approval.
 
 ---
 

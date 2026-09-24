@@ -2,6 +2,18 @@
 
 ## 2026-09-24
 
+### Milestone 13 — Product architecture documentation formalization (docs only)
+- Formalized product ownership and hierarchy `[CONFIRMED]`: **NxGen Digital Services → Campus Skill Core Platform → Institution/Tenant Configuration**. Campus Skill is a product of NxGen Digital Services.
+- Documented platform-level concerns vs institution-level configuration responsibilities in `PROJECT_CONTEXT.md`, `PRODUCT_REQUIREMENTS.md` §0, `PRODUCT_SPEC.md` §1, `ARCHITECTURE.md`.
+- **Branding direction:** Campus Skill · Powered by NxGen Digital Services; institution portals show configured institution identity. No configurable parent-attribution field (intentionally avoided).
+- **Pilot/reference institution:** A&M Institute of Management and Technology, Pathankot recorded as design-partner / pilot tenant data only — not hard-coded permanent product identity.
+- Restated configuration-over-customization, five-way decision model, requirement workflow, Product Owner authority, and institution-admin boundaries (no code/schema/permission edits by admins).
+- Refreshed **M1–M12 current capabilities** and **future backlog** in `PRODUCT_REQUIREMENTS.md` §14–§15 (Attendance/Timetable/Examination, billing, payments, NxGen website, auth replacement still out of scope).
+- Updated `AGENTS.md` status: M1–M12 checkpointed (`0143317`); M13 is documentation-only; approved architecture list includes implemented auth/storage notes.
+- **Documentation-only** — no application code, schema, auth, security, or M1–M12 behavior changes. Verification: `npm run lint`, `npx tsc --noEmit`, `npm run build` after edits. Working tree left **uncommitted** for Product Owner review.
+
+## 2026-09-24
+
 ### Milestone 12 — Final gap closure (files, XLSX, recovery routes, live verification)
 - **File blob storage completed:** new `src/lib/file-store.ts` (local filesystem provider `local_fs` under gitignored `.file-store/`, path-traversal guards, SHA-256 integrity). `createFileObject` persists bytes when `contentBase64` is provided; `GET /api/files/[id]?content=1` streams authorized bytes with `Content-Disposition` + `no-store`; soft delete removes blobs. Cross-institution and unauthenticated content access denied live (SC→NC file **403**, unauth **401**).
 - **Real XLSX import:** added dependency `xlsx` (SheetJS). `parseXlsx` / `detectImportFormat` / `parseImportInput` in `src/lib/import-engine.ts`; `POST /api/import` accepts `xlsxBase64` (or CSV text as before). Import Center UI accepts `.xlsx` file picker (Upload→Validate→Preview→Approve→Import→Audit unchanged). Live: workbook validated `2/2` rows; CSV path still works; SC does not see NC import jobs.

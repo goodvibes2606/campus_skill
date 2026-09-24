@@ -1,14 +1,40 @@
 # CampusSkill — Product Specification
 
-## 1. Product Identity
+## 1. Product Identity `[CONFIRMED]`
 
 Product Name:
 
-CampusSkill
+Campus Skill (legacy spelling CampusSkill may appear in older docs)
+
+Product ownership:
+
+Campus Skill is a **product of NxGen Digital Services**.
+
+```text
+NxGen Digital Services
+  → Campus Skill Core Platform
+    → Institution / Tenant Configuration
+```
 
 Product Type:
 
 AI-powered academic-to-career platform for college students.
+
+Multi-institution institutional education platform: one reusable core
+codebase; institution differences via configuration and data.
+
+Branding direction:
+
+- Platform display: **Campus Skill**
+- Attribution: **Powered by NxGen Digital Services**
+- Institution portals: also show the configured institution identity
+  (name, logo, branding colors)
+
+Pilot / reference institution:
+
+A&M Institute of Management and Technology, Pathankot is a
+**pilot/reference tenant and design partner only**. It must **not** become
+the hard-coded permanent product identity.
 
 Primary Goal:
 
