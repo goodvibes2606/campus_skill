@@ -550,10 +550,10 @@ export async function updateCalendarEvent(
         set("approval_note", null);
       } else if (to === "approved") {
         await assertCanApproveCalendar(ctx, row);
-        if (ctx.userId === row.created_by && ctx.roleName === ROLES.faculty) {
+        if (ctx.userId === row.created_by) {
           throw new AuthzError(
             "FORBIDDEN",
-            "Faculty may not self-approve calendar events"
+            "You may not approve a calendar event you created"
           );
         }
         set("status", to);

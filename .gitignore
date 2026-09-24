@@ -157,3 +157,6 @@ build/
 # TypeScript
 next-env.d.ts
 .env.local
+
+# Local file blob store (server-only; never commit user uploads)
+.file-store/

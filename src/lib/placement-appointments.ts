@@ -151,6 +151,18 @@ export async function createPlacementResponsibility(
     );
   }
 
+  // Director/Dean may not appoint themselves as TPO (self-deal guard).
+  if (
+    params.responsibility === "tpo" &&
+    ctx.roleName === "director_dean" &&
+    params.personId === ctx.userId
+  ) {
+    throw new AuthzError(
+      "FORBIDDEN",
+      "You cannot create a TPO appointment for yourself"
+    );
+  }
+
   if (params.responsibility === "tpo") {
     if (!["faculty", "hod", "tpo", "director_dean"].includes(personRow.role_name)) {
       throw new AuthzError(
@@ -259,6 +271,20 @@ export async function decidePlacementResponsibility(
 
   if (row.status !== "pending") {
     throw new PlacementValidationError("Only pending appointments can be decided");
+  }
+
+  // Separation of duties: requester must not approve/reject their own request.
+  if (row.requested_by && row.requested_by === ctx.userId) {
+    throw new AuthzError(
+      "FORBIDDEN",
+      "You cannot decide a placement appointment you requested"
+    );
+  }
+  if (row.person_id === ctx.userId && decision === "approve") {
+    throw new AuthzError(
+      "FORBIDDEN",
+      "You cannot approve an appointment for yourself"
+    );
   }
 
   if (decision === "reject") {

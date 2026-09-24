@@ -7,6 +7,7 @@ import {
   updateInstitutionBranding,
   updateInstitutionContact,
   updateInstitutionOnboarding,
+  updateInstitutionPrivacy,
   updateInstitutionProfile,
   updateInstitutionPublicProfile,
 } from "@/lib/institution-config";
@@ -14,7 +15,7 @@ import {
 /**
  * GET   /api/institution/config — load workspace config for caller's institution.
  * PATCH /api/institution/config — update a config area (admin only).
- * Body: { area: profile|contact|branding|public_profile|onboarding, ...fields }
+ * Body: { area: profile|contact|branding|public_profile|onboarding|privacy, ...fields }
  */
 export async function GET() {
   try {
@@ -104,6 +105,22 @@ export async function PATCH(request: Request) {
             ? Number(body.onboardingStep)
             : undefined,
       });
+    } else if (area === "privacy") {
+      updated = await updateInstitutionPrivacy(ctx, {
+        privacyNotice:
+          body.privacyNotice !== undefined
+            ? String(body.privacyNotice)
+            : undefined,
+        aiNotice: body.aiNotice !== undefined ? String(body.aiNotice) : undefined,
+        dataHandlingNotice:
+          body.dataHandlingNotice !== undefined
+            ? String(body.dataHandlingNotice)
+            : undefined,
+        termsAckText:
+          body.termsAckText !== undefined
+            ? String(body.termsAckText)
+            : undefined,
+      });
     } else {
       return NextResponse.json(
         { error: "VALIDATION", message: "Unknown config area" },
@@ -131,10 +148,7 @@ function handleErr(error: unknown) {
     );
   }
   return NextResponse.json(
-    {
-      error: "server_error",
-      message: error instanceof Error ? error.message : "unknown",
-    },
+    { error: "server_error", message: "Something went wrong. Try again." },
     { status: 500 }
   );
 }

@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     });
   } catch {
     return NextResponse.json(
-      { error: "server_error", message: "unknown" },
+      { error: "server_error", message: "Something went wrong. Try again." },
       { status: 500 }
     );
   }

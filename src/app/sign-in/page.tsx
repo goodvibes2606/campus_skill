@@ -84,6 +84,14 @@ function SignInForm() {
             {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
+        <div className="auth-actions-row">
+          <Link className="text-link" href="/forgot-password">
+            Forgot password?
+          </Link>
+          <Link className="text-link" href="/verify-email">
+            Verify email
+          </Link>
+        </div>
         <p className="auth-switch">
           New here? <Link href="/sign-up">Create an account</Link>
         </p>

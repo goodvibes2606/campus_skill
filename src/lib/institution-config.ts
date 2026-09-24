@@ -49,6 +49,10 @@ export type InstitutionConfigRow = {
   onboarding_status: string;
   onboarding_step: number;
   status: string;
+  privacy_notice: string | null;
+  ai_notice: string | null;
+  data_handling_notice: string | null;
+  terms_ack_text: string | null;
   created_at: Date;
   updated_at: Date;
 };
@@ -254,6 +258,13 @@ export type UpdateOnboardingInput = {
   onboardingStep?: number;
 };
 
+export type UpdatePrivacyInput = {
+  privacyNotice?: string;
+  aiNotice?: string;
+  dataHandlingNotice?: string;
+  termsAckText?: string;
+};
+
 const PROFILE_COLUMNS: Record<string, string> = {
   shortName: "short_name",
   institutionType: "institution_type",
@@ -320,6 +331,10 @@ const TEXT_MAX: Record<string, number> = {
   favicon_url: 500,
   login_tagline: 200,
   dashboard_tagline: 200,
+  privacy_notice: 8000,
+  ai_notice: 8000,
+  data_handling_notice: 8000,
+  terms_ack_text: 8000,
 };
 
 function buildUpdate(
@@ -415,6 +430,14 @@ function pickAuditSlice(
       onboarding_status: row.onboarding_status,
       onboarding_step: row.onboarding_step,
       status: row.status,
+    };
+  }
+  if (area === "privacy") {
+    return {
+      privacy_notice: row.privacy_notice,
+      ai_notice: row.ai_notice,
+      data_handling_notice: row.data_handling_notice,
+      terms_ack_text: row.terms_ack_text,
     };
   }
   return {};
@@ -532,6 +555,33 @@ export async function updateInstitutionOnboarding(
       }
       params.push(step);
       sets.push(`onboarding_step = $${params.length}`);
+    }
+    return { sets, params };
+  });
+}
+
+export async function updateInstitutionPrivacy(
+  ctx: AuthContext,
+  input: UpdatePrivacyInput
+): Promise<InstitutionConfigRow> {
+  return applyConfigUpdate(ctx, "privacy", () => {
+    const sets: string[] = [];
+    const params: unknown[] = [];
+    if (input.privacyNotice !== undefined) {
+      params.push(clip(input.privacyNotice, 8000));
+      sets.push(`privacy_notice = $${params.length}`);
+    }
+    if (input.aiNotice !== undefined) {
+      params.push(clip(input.aiNotice, 8000));
+      sets.push(`ai_notice = $${params.length}`);
+    }
+    if (input.dataHandlingNotice !== undefined) {
+      params.push(clip(input.dataHandlingNotice, 8000));
+      sets.push(`data_handling_notice = $${params.length}`);
+    }
+    if (input.termsAckText !== undefined) {
+      params.push(clip(input.termsAckText, 8000));
+      sets.push(`terms_ack_text = $${params.length}`);
     }
     return { sets, params };
   });

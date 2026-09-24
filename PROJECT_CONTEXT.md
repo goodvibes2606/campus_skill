@@ -290,17 +290,17 @@ changing institution-specific behavior.
 
 ## Current Project Phase
 
-PHASE 0 — Development Environment
+PHASE 0 — Development Environment (documentation-approved baseline).
+
+Application milestones M1–M12 have been implemented and verified in the working tree (see `CHANGELOG.md`). The Product Owner has not yet approved moving past PHASE 0 for production launch / M13+.
 
 ## Current Task
 
-Establish project documentation and development rules before
-application implementation begins.
+M12 (Production Readiness + Institutional Usability) implementation and verification is complete pending Product Owner review of the uncommitted working tree.
 
 ## Important Rule
 
-Do not start building the application until the product,
-architecture and development rules have been reviewed.
+Do not start building new application features until the product, architecture and development rules have been reviewed. Do not start M13 without explicit Product Owner approval. Read `PRODUCT_REQUIREMENTS.md` before institution-specific or multi-tenant changes.
 
 ## Current Status
 
@@ -308,4 +308,4 @@ GitHub repository created.
 
 GitHub Codespace created.
 
-Project implementation has NOT started.
+M1–M11 checkpointed (`87cf192` / prior `15eeea8`). M12 implemented in working tree (uncommitted for review): security hardening, account lifecycle, file registry, import/export, privacy/consent, announcements, Help, two-institution seed, Thesis Mentor UI removal, loading/responsive UX, backup/monitoring requirements doc. Lint / typecheck / build re-run after M12.

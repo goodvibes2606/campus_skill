@@ -715,6 +715,12 @@ export async function createOffer(
       "Offers can only be created for selected (or already offered) applications"
     );
   }
+  if (app.student_id === ctx.userId) {
+    throw new AuthzError(
+      "FORBIDDEN",
+      "Operators may not create offers on their own application"
+    );
+  }
 
   const inserted = await pool.query<{ id: string }>(
     `INSERT INTO public.placement_offers (
@@ -786,6 +792,13 @@ export async function updateOffer(
         );
       }
     }
+    // Operators must not process offers on their own application.
+    if (isOperatorAction && app.student_id === ctx.userId) {
+      throw new AuthzError(
+        "FORBIDDEN",
+        "Operators may not update offers on their own application"
+      );
+    }
     await pool.query(
       `UPDATE public.placement_offers SET offer_status = $2 WHERE id = $1`,
       [offerId, input.offerStatus]
@@ -796,6 +809,12 @@ export async function updateOffer(
       // Acceptance alone does not mark joined — joining creates the record.
     }
   } else if (scope.access === "operator") {
+    if (app.student_id === ctx.userId) {
+      throw new AuthzError(
+        "FORBIDDEN",
+        "Operators may not update offers on their own application"
+      );
+    }
     await pool.query(
       `UPDATE public.placement_offers SET
           joining_date = CASE WHEN $2::boolean THEN $3::date ELSE joining_date END,

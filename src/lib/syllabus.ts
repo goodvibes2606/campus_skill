@@ -697,9 +697,10 @@ export async function updateSyllabus(
       if (to === "approved" || to === "published") {
         await assertCanDecideSyllabus(ctx, row);
         if (ctx.userId === row.created_by && to === "approved") {
-          // Allow HOD/admin self-approve only if not pure creator-as-faculty;
-          // HOD/admin roles already passed assertCanDecideSyllabus.
-          void deciding;
+          throw new AuthzError(
+            "FORBIDDEN",
+            "You may not approve a syllabus you created — another approver is required"
+          );
         }
       }
       if (to === "in_review" || to === "approved" || to === "archived") {

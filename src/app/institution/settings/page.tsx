@@ -1,5 +1,6 @@
 import { getAuthContext } from "@/lib/authz";
 import { loadInstitutionWorkspace } from "@/lib/institution-config";
+import { InstitutionConfigForm } from "@/components/institution/config-form";
 
 export default async function InstitutionSettingsPage() {
   const ctx = await getAuthContext();
@@ -14,8 +15,9 @@ export default async function InstitutionSettingsPage() {
     );
   }
 
+  let data;
   try {
-    await loadInstitutionWorkspace(ctx);
+    data = await loadInstitutionWorkspace(ctx);
   } catch {
     return (
       <div className="placeholder-page">
@@ -24,6 +26,9 @@ export default async function InstitutionSettingsPage() {
       </div>
     );
   }
+
+  const readOnly = !data.scope.canConfigure;
+  const c = data.config as Record<string, unknown>;
 
   const panels = [
     {
@@ -38,17 +43,17 @@ export default async function InstitutionSettingsPage() {
     },
     {
       title: "Documents & templates",
-      body: "Letterhead, certificate, and document templates for exports. Storage/CDN is TBD — not configured in M11.",
+      body: "Letterhead, certificate, and document templates for exports. Full document engine deferred.",
       status: "Placeholder",
     },
     {
       title: "Security",
-      body: "Session policy, MFA, password rules, IP allowlists. Better Auth owns sessions; institution-specific policy hooks come later.",
-      status: "Placeholder",
+      body: "Password reset + email verification foundation enabled (M12). MFA, IP allowlists, and advanced session policy remain future work.",
+      status: "Partial",
     },
     {
       title: "Integrations",
-      body: "LMS, email SMTP, SSO, payment providers — explicitly out of M11 scope.",
+      body: "LMS, email SMTP, SSO, payment providers — out of current scope. Optional AUTH_MAIL_WEBHOOK_URL only.",
       status: "Out of scope",
     },
     {
@@ -63,15 +68,59 @@ export default async function InstitutionSettingsPage() {
       <section className="welcome-section">
         <div>
           <p className="eyebrow">Institution · Settings</p>
-          <h1>Documents, notifications &amp; advanced</h1>
+          <h1>Privacy, notices &amp; advanced</h1>
           <p className="welcome-copy">
-            Safe foundation panels with documented limitations — no fake
-            fully-workflowed features.
+            Configure privacy wording users acknowledge on their Profile. Other
+            panels keep documented limitations — no fake fully-workflowed
+            features.
           </p>
         </div>
       </section>
 
-      <div className="inst-card-grid">
+      <InstitutionConfigForm
+        area="privacy"
+        title="Privacy & AI notices"
+        description="Wording shown on Profile → Privacy. Leave blank to use platform defaults. Not legal advice — your institution owns the text."
+        readOnly={readOnly}
+        initial={{
+          privacyNotice: c.privacy_notice ?? "",
+          dataHandlingNotice: c.data_handling_notice ?? "",
+          aiNotice: c.ai_notice ?? "",
+          termsAckText: c.terms_ack_text ?? "",
+        }}
+        fields={[
+          {
+            key: "privacyNotice",
+            label: "Privacy notice",
+            type: "textarea",
+            maxLength: 8000,
+            placeholder: "How personal and academic data is used…",
+          },
+          {
+            key: "dataHandlingNotice",
+            label: "Data handling notice",
+            type: "textarea",
+            maxLength: 8000,
+            placeholder: "Access, export, and retention summary…",
+          },
+          {
+            key: "aiNotice",
+            label: "AI notice",
+            type: "textarea",
+            maxLength: 8000,
+            placeholder: "What AI Assist may send to a provider…",
+          },
+          {
+            key: "termsAckText",
+            label: "Terms acknowledgement",
+            type: "textarea",
+            maxLength: 8000,
+            placeholder: "Acceptable use summary…",
+          },
+        ]}
+      />
+
+      <div className="inst-card-grid" style={{ marginTop: 24 }}>
         {panels.map((p) => (
           <div className="inst-card" key={p.title}>
             <p className="eyebrow">{p.status}</p>

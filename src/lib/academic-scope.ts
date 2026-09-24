@@ -218,10 +218,11 @@ export async function assertHodMayManageSection(
   headships: DepartmentHeadContext[],
   sectionId: string
 ): Promise<{ departmentId: string; institutionId: string }> {
-  if (ctx.roleName !== ROLES.hod && ctx.roleName !== ROLES.admin && ctx.roleName !== ROLES.systemAdmin) {
+  // system_admin is technical only — not an academic authority.
+  if (ctx.roleName !== ROLES.hod && ctx.roleName !== ROLES.admin) {
     throw new AuthzError(
       "FORBIDDEN",
-      "HOD, admin, or system_admin required"
+      "HOD or institution admin required"
     );
   }
 

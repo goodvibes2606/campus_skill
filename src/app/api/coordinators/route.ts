@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       );
     }
     return NextResponse.json(
-      { error: "server_error", message: error instanceof Error ? error.message : "unknown" },
+      { error: "server_error", message: "Something went wrong. Try again." },
       { status: 500 }
     );
   }

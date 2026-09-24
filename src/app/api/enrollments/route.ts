@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "server_error",
-        message: error instanceof Error ? error.message : "unknown",
+        message: "Something went wrong. Try again.",
       },
       { status: 500 }
     );
@@ -97,28 +97,55 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get("studentId");
 
-    // Student may always read own enrollment; others need institution match
     const targetId = studentId ?? ctx.userId;
-    if (targetId !== ctx.userId && ctx.roleName === ROLES.student) {
+
+    // Students: own enrollment only.
+    if (ctx.roleName === ROLES.student) {
+      if (targetId !== ctx.userId) {
+        return NextResponse.json(
+          { error: "FORBIDDEN", message: "Students may only read own enrollment" },
+          { status: 403 }
+        );
+      }
+      const active = await getActiveEnrollment(ctx.userId);
+      const history = await listEnrollments(ctx, ctx.userId);
+      return NextResponse.json({ active, history });
+    }
+
+    // system_admin: technical only — no student academic history browsing.
+    if (ctx.roleName === ROLES.systemAdmin) {
       return NextResponse.json(
-        { error: "FORBIDDEN", message: "Students may only read own enrollment" },
+        { error: "FORBIDDEN", message: "System administration has no enrollment read access" },
         { status: 403 }
       );
     }
 
-    if (targetId === ctx.userId && ctx.roleName === ROLES.student) {
-      const active = await getActiveEnrollment(ctx.userId);
-      const history = await listEnrollments(ctx, ctx.userId);
-      return NextResponse.json({
-        active,
-        history,
-      });
+    // recruiter / unknown roles: deny.
+    if (
+      ![
+        ROLES.admin,
+        ROLES.hod,
+        ROLES.directorDean,
+        ROLES.faculty,
+        ROLES.tpo,
+      ].includes(ctx.roleName as never)
+    ) {
+      return NextResponse.json(
+        { error: "FORBIDDEN", message: "Enrollment history not available for your role" },
+        { status: 403 }
+      );
     }
 
-    // faculty/admin/HOD reading another student — institution-scoped
+    // Staff reading another student — institution-scoped (listEnrollments).
+    if (targetId !== ctx.userId && !ctx.institutionId) {
+      return NextResponse.json(
+        { error: "NO_INSTITUTION", message: "No institution assigned" },
+        { status: 403 }
+      );
+    }
+
     const history = await listEnrollments(ctx, targetId);
-    const active =
-      history.find((e) => e.status === "active") ?? null;
+    const active = history.find((e) => e.status === "active") ?? null;
     return NextResponse.json({ active, history });
   } catch (error) {
     if (error instanceof AuthzError) {

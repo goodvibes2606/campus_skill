@@ -88,7 +88,7 @@ function handleErr(error: unknown) {
   return NextResponse.json(
     {
       error: "server_error",
-      message: error instanceof Error ? error.message : "unknown",
+      message: "Something went wrong. Try again.",
     },
     { status: 500 }
   );

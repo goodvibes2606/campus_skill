@@ -98,6 +98,12 @@ export default async function InstitutionPage() {
       show: true,
     },
     {
+      title: "Account lifecycle",
+      href: "/institution/accounts",
+      desc: "Suspend, graduate, or mark accounts inactive — audited.",
+      show: canConfigure || scope.canApprove,
+    },
+    {
       title: "Modules & features",
       href: "/institution/modules",
       desc: `${moduleCount} modules configured for this institution.`,
@@ -122,10 +128,16 @@ export default async function InstitutionPage() {
       show: scope.canViewAudit,
     },
     {
-      title: "Import center",
+      title: "Import & export",
       href: "/institution/import",
-      desc: "CSV/Excel import foundation (validate before write).",
-      show: scope.canImport,
+      desc: "CSV import with approval + controlled audited export.",
+      show: scope.canImport || scope.canApprove || scope.roleName === "hod" || scope.roleName === "tpo",
+    },
+    {
+      title: "Privacy notices",
+      href: "/institution/settings",
+      desc: "Privacy, data-handling, AI notice, and terms wording.",
+      show: canConfigure,
     },
     {
       title: "Documents & notifications",

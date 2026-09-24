@@ -65,10 +65,18 @@ const navigation: NavItem[] = [
     roles: ["student", "faculty", "hod", "admin", "director_dean"],
   },
   {
-    label: "Thesis Mentor",
-    href: "/thesis-mentor",
-    icon: "spark",
-    roles: ["student"],
+    label: "Announcements",
+    href: "/announcements",
+    icon: "bell",
+    roles: [
+      "student",
+      "faculty",
+      "hod",
+      "admin",
+      "director_dean",
+      "tpo",
+      "system_admin",
+    ],
   },
   {
     label: "Placement",
@@ -105,6 +113,7 @@ const navigation: NavItem[] = [
   },
   { label: "Notifications", href: "/notifications", icon: "bell" },
   { label: "Profile", href: "/profile", icon: "user" },
+  { label: "Help", href: "/help", icon: "book" },
 ];
 
 const WORKSPACE_LABELS: Record<string, string> = {

@@ -36,7 +36,12 @@ export default async function InstitutionUsersPage() {
           <h1>People</h1>
           <p className="welcome-copy">
             Directory of profiles in this institution. Role assignment UI is a
-            documented future RBAC flow — not invented here.
+            documented future RBAC flow — not invented here. For suspend /
+            graduate / leave, use{" "}
+            <a className="text-link" href="/institution/accounts">
+              Account lifecycle
+            </a>
+            .
           </p>
         </div>
       </section>

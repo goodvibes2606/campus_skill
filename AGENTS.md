@@ -17,7 +17,7 @@ If any document conflicts, escalate. Do not silently resolve conflicts.
 
 ## Current status
 
-**PHASE 0 — Development Environment.** Documentation is approved. No application code exists. Do not write application code until Product Owner approves moving to the next phase.
+**PHASE 0 — Development Environment** remains the approved baseline for launching new work. Documentation is approved. Application milestones M1–M12 have been implemented (see `CHANGELOG.md`); M12 is uncommitted pending Product Owner review. Do not start M13 or other new phases without Product Owner approval.
 
 ## Approved architecture
 

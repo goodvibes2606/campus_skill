@@ -87,7 +87,9 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
 
   const row = result.rows[0];
   if (!row) return null;
-  if (row.status !== "active") return null;
+  // Fail closed: only active profiles may use the workspace.
+  // suspended / inactive / graduated / left / pending / deactivated → null.
+  if (!ACTIVE_PROFILE_STATUSES.has(row.status)) return null;
 
   return {
     userId: row.id,
@@ -124,10 +126,14 @@ export function requireRole(ctx: AuthContext, ...roles: RoleName[]): void {
   }
 }
 
+/** Statuses that may use the authenticated workspace (fail closed). */
+const ACTIVE_PROFILE_STATUSES = new Set(["active"]);
+
 /**
  * Institution isolation check.
  * - Users with no institution (pending) cannot access institution-scoped data.
- * - system_admin may access any institution (cross-institution operator).
+ * - system_admin may READ any institution for technical support, but is NOT
+ *   an automatic academic authority — academic write paths must exclude it.
  * - Everyone else: exact institution match only.
  */
 export function canAccessInstitution(
@@ -138,6 +144,17 @@ export function canAccessInstitution(
   if (ctx.roleName === ROLES.systemAdmin) return true;
   if (!ctx.institutionId) return false;
   return ctx.institutionId === institutionId;
+}
+
+/**
+ * Academic write authority: system_admin is technical only — never
+ * an automatic Director/Dean/HOD/admin academic authority.
+ */
+export function canWriteAcademics(ctx: AuthContext): boolean {
+  if (ctx.roleName === ROLES.systemAdmin) return false;
+  if (!ACTIVE_PROFILE_STATUSES.has(ctx.profileStatus)) return false;
+  if (!ctx.institutionId) return false;
+  return true;
 }
 
 /** Assert institution access; throws FORBIDDEN / NO_INSTITUTION. */
@@ -201,11 +218,12 @@ export async function queryScopedToInstitution<T extends Record<string, unknown>
     text,
     [...params, institutionId] as never[]
   );
-  // Defense in depth: drop any row that somehow escaped the WHERE clause.
-  return result.rows.filter(
-    (row) =>
-      row.institution_id === undefined ||
-      row.institution_id === institutionId ||
-      ctx.roleName === ROLES.systemAdmin
-  );
+  // Defense in depth: fail closed — drop any row that is out of institution.
+  // Rows without institution_id column are rejected unless system_admin read.
+  return result.rows.filter((row) => {
+    if (ctx.roleName === ROLES.systemAdmin) return true;
+    const rowInst = row.institution_id;
+    if (rowInst === undefined || rowInst === null) return false;
+    return rowInst === institutionId;
+  });
 }

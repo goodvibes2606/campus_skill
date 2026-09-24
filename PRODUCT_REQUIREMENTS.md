@@ -412,7 +412,38 @@ This document records the **permanent product strategy** those tables and pages 
 
 ---
 
-## 14. Labels for unresolved items
+## 14. Milestone 12 — Current backlog `[CONFIRMED]`
+
+Implemented in M12 (production readiness + institutional usability). Do not rebuild; extend only with Product Owner approval.
+
+- Account lifecycle: `pending` / `active` / `suspended` / `inactive` / `graduated` / `left` (+ `deactivated` technical) — workspace access fail-closed on non-active.
+- Password reset + email verification foundation (Better Auth; optional server webhook delivery — no client-exposed links).
+- File object registry (`file_objects`) — blob storage provider still TBD (separate implementation phase).
+- CSV/Excel import pipeline foundation (parse → validate → preview → approve → run; structure-safe entities; audit).
+- Controlled export jobs (role-gated; TPO blocked from enrollment/assignment exports).
+- Privacy / consent: notice wording configurable per institution; consent acceptance recorded with hashed IP.
+- Announcements: audience-scoped, publish workflow, notification fan-out.
+- Campus Skill Help: static role+module knowledge base (`/help` + `/api/help`) — no AI key required; structured for future AI retrieval without inventing capabilities.
+- Two-institution E2E seed (`scripts/seed-e2e.mjs`) for isolation testing.
+- Thesis Mentor UI/nav removed (deferred product surface).
+- Responsive UX polish + loading states for high-traffic pages.
+- Backup & monitoring requirements documented in `OPERATIONS_BACKUP_MONITORING.md` (requirements only — no real credentials, no paid dependency).
+
+## 15. Future backlog — not in M12 `[CONFIRMED]`
+
+Deferred until explicitly approved (development sequence / `PRODUCT_SPEC.md` / `AGENTS.md` rules):
+
+- Attendance, Timetable, Examination — **future modules only** (not full modules in M12).
+- Production blob storage provider + CDN (Storage: TBD).
+- Real SMTP / transactional email provider (M12 uses optional webhook + console fallback).
+- Row-Level Security hardening beyond application-level isolation (architecture already anticipates RLS).
+- Full Excel engine, large-scale spreadsheet, SSO/SAML, multi-campus, billing, advanced analytics.
+- Recruiter marketplace, payments, Android application, advanced portfolio, job matching, internship management, complex multi-agent AI, large-scale multilingual content.
+- M13+ development sequence steps — do not start without Product Owner approval.
+
+---
+
+## 16. Labels for unresolved items
 
 Use existing labels from `AGENTS.md` / `DEVELOPMENT_RULES.md`:
 

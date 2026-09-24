@@ -38,6 +38,15 @@ export async function ensureProfile(user: AuthUserLike): Promise<void> {
     );
   }
 
+  // Never resurrect a deliberately removed profile.
+  const existing = await pool.query<{ status: string }>(
+    `SELECT status FROM public.profiles WHERE id = $1`,
+    [user.id]
+  );
+  if (existing.rows[0] && existing.rows[0].status === "deactivated") {
+    return;
+  }
+
   await pool.query(
     `INSERT INTO public.profiles (id, email, full_name, avatar_url, role_id, institution_id, status)
      VALUES ($1, $2, $3, $4, $5, NULL, 'active')
